@@ -111,6 +111,45 @@ The site has a "Stay in touch" signup form that posts to a **Google Form** you o
    ```
    The form appears on the Welcome screen within ~30 seconds.
 
+### Also get every signup as an email (recommended)
+
+The Sheet is a good record, but it's easier to act on signups if each one arrives in your inbox. Add a **Google Apps Script trigger** on the form — free, stays inside Google, no third-party service needed.
+
+1. Open the form for editing at [forms.google.com](https://forms.google.com).
+2. Three-dot menu (top-right) → **Script editor**. A code editor opens in a new tab.
+3. Replace the placeholder code with:
+
+   ```javascript
+   function onVolFormSubmit(e) {
+     const v = e.namedValues || {};
+     const name  = (v["Name"]  || [""])[0];
+     const email = (v["Email"] || [""])[0];
+     const body =
+       "New Vines of Life signup\n" +
+       "=========================\n\n" +
+       "Name:     " + name  + "\n" +
+       "Email:    " + email + "\n\n" +
+       "Received: " + new Date().toLocaleString();
+     MailApp.sendEmail({
+       to:      "vinesoflife@aol.com",
+       subject: "Vines of Life — new signup: " + name,
+       body:    body,
+       replyTo: email
+     });
+   }
+   ```
+
+4. Save the project (name it "Vines of Life form emails").
+5. Click the **clock icon** in the left rail (Triggers) → **+ Add Trigger**:
+   - Function: `onVolFormSubmit`
+   - Event source: **From form**
+   - Event type: **On form submit**
+   - Save.
+6. Approve the permissions prompt (it will warn about an "unverified app" — that's normal for your own scripts; click *Advanced → Go to project*).
+7. Submit a test signup. You should get an email at `vinesoflife@aol.com` within ~10 seconds.
+
+Quota: free Google accounts allow 100 Apps Script emails/day — far more than any newsletter signup form needs.
+
 ### Testing
 
 Visit the live site, sign up with a test email, then check your Google Sheet — you should see a new row. If nothing appears:
