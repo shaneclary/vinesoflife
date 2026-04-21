@@ -353,6 +353,41 @@
    Single-file web program. Vanilla JS. LocalStorage persistence.
    ============================================================ */
 
+/* ------------- Newsletter config -------------
+ *
+ * Signups are sent to a Google Form you own. Responses land in a
+ * Google Sheet you control. No server, no database, no cost.
+ *
+ * To configure:
+ *   1. Create a Google Form with two short-answer fields:
+ *        - Name
+ *        - Email
+ *      (Responses > Link to Sheets to save replies in a Sheet.)
+ *   2. In the form's three-dot menu, click "Get pre-filled link".
+ *      Fill the fields with dummy values (e.g. "Name" and "a@a.com")
+ *      and click "Get link". Copy the link.
+ *      It looks like:
+ *        https://docs.google.com/forms/d/e/FORM_ID/viewform?usp=pp_url
+ *          &entry.1234567890=Name&entry.9876543210=a%40a.com
+ *   3. In the URL, replace /viewform with /formResponse. That's the
+ *      form's submit endpoint. Paste it below as `formAction`.
+ *   4. Copy each `entry.XXXXXXXXXX` number for Name and Email into
+ *      `fields.name` and `fields.email` below.
+ *   5. Set `enabled: true`.
+ *   6. Commit + push. Done.
+ *
+ * See README.md "Newsletter setup" for a full walk-through with
+ * screenshots and alternatives (Mailchimp / Buttondown / Formspree).
+ */
+const NEWSLETTER = {
+  enabled: false,
+  formAction: "",              // e.g. "https://docs.google.com/forms/d/e/XXXX/formResponse"
+  fields: {
+    name:  "entry.XXXXXXXXXX", // Name field's entry ID
+    email: "entry.XXXXXXXXXX", // Email field's entry ID
+  },
+};
+
 /* ------------- State ------------- */
 const STATE_KEY = "vol.state.v1";
 const DEFAULT_STATE = {
@@ -442,6 +477,18 @@ anyone — of any faith, or none — who wants to live more fully awake, more lo
       please reach out to a licensed professional or crisis line. This program complements but does not
       replace clinical care.</li>
 </ol>
+
+<h3>Your privacy — plainly</h3>
+<div class="callout">
+  <h4>What you write stays on your device.</h4>
+  <p>Every reflection, practice note, and commitment you write in this site is saved
+     <strong>only in your own web browser</strong>, on the device you are using right now.
+     Nothing is sent to us. Nothing is stored on any server. Nothing touches GitHub, email,
+     or any cloud service unless you choose to send it yourself.</p>
+  <p>If you want a backup — to keep a copy, or to move it to another device — use
+     <a href="#/settings">Settings &amp; Export</a> to email yourself a copy or download a file.
+     If you clear your browser data, the journal on this device will be erased.</p>
+</div>
 
 <h3>A note on sources</h3>
 <p>The teaching here is drawn from the <em>Vines of Life / IDmP (Interactive Discipline management
@@ -1394,6 +1441,8 @@ function viewWelcome() {
         <a class="btn ghost" href="#/journal">Preview the Journal</a>
       </div>
     </div>
+
+    ${renderNewsletterForm("welcome")}
   `;
 }
 
@@ -1676,13 +1725,18 @@ function viewSettings() {
     </div>
 
     <div class="card">
-      <h3>Export a backup</h3>
-      <p>Download a JSON file of your journal. You can save it, email it to yourself, or restore it
-      later (e.g., on a new device or browser).</p>
+      <h3>Back up your journal</h3>
+      <p>Three ways to keep a copy of what you've written. Each one happens on
+         <em>your</em> device — nothing is uploaded anywhere.</p>
       <div class="actions">
-        <button type="button" class="btn" id="btn-export">Download my journal (JSON)</button>
+        <button type="button" class="btn" id="btn-email">Email myself a copy</button>
+        <button type="button" class="btn ghost" id="btn-export">Download (JSON)</button>
         <button type="button" class="btn ghost" id="btn-print">Print my journal</button>
       </div>
+      <p style="font-size:.85rem;color:var(--ink-soft);margin-top:.8rem">
+        "Email myself a copy" opens your own mail app with your journal pre-filled —
+        your email provider never sees it until you press send. For very long journals, use Download instead.
+      </p>
     </div>
 
     <div class="card">
@@ -1800,6 +1854,8 @@ function attachHandlers() {
     });
   });
   // Settings buttons
+  const emailBtn = $("#btn-email");
+  if (emailBtn) emailBtn.addEventListener("click", emailMyJournal);
   const exp = $("#btn-export");
   if (exp) exp.addEventListener("click", () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -1807,6 +1863,13 @@ function attachHandlers() {
     a.href = URL.createObjectURL(blob);
     a.download = "vines-of-life-journal.json";
     a.click();
+  });
+  // Newsletter signup form (any page that renders it)
+  $$("[data-newsletter-form]").forEach(form => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      handleNewsletterSubmit(form);
+    });
   });
   const printBtn = $("#btn-print");
   if (printBtn) printBtn.addEventListener("click", () => {
@@ -1833,6 +1896,135 @@ function attachHandlers() {
       renderSidebar(); renderMode(); route();
     }
   });
+}
+
+/* ------------- Newsletter form ------------- */
+function renderNewsletterForm(placement) {
+  if (!NEWSLETTER.enabled) return "";  // show nothing until configured
+  const id = "newsletter-" + placement;
+  return `
+    <div class="card" id="${id}">
+      <span class="eyebrow">Stay in touch</span>
+      <h3>Get updates from Vines of Life</h3>
+      <p>Occasional notes — new modules, retreats, writings. No spam, unsubscribe anytime.</p>
+      <form class="newsletter-form" data-newsletter-form autocomplete="on">
+        <label class="field">
+          <span class="label">Your name</span>
+          <input type="text" name="name" required autocomplete="name" placeholder="First and last">
+        </label>
+        <label class="field">
+          <span class="label">Email</span>
+          <input type="text" name="email" required autocomplete="email" placeholder="you@example.com"
+                 pattern="[^@\\s]+@[^@\\s]+\\.[^@\\s]+">
+        </label>
+        <div class="actions">
+          <button type="submit" class="btn">Sign me up</button>
+        </div>
+        <p class="newsletter-status" aria-live="polite" style="margin-top:.6rem;font-size:.9rem"></p>
+      </form>
+    </div>
+  `;
+}
+
+function handleNewsletterSubmit(form) {
+  const status = form.querySelector(".newsletter-status");
+  const name   = form.elements.name.value.trim();
+  const email  = form.elements.email.value.trim();
+  if (!name || !email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    status.textContent = "Please enter your name and a valid email.";
+    status.style.color = "var(--berry)";
+    return;
+  }
+  if (!NEWSLETTER.enabled || !NEWSLETTER.formAction) {
+    status.textContent = "Newsletter is not configured yet. Please try again later.";
+    status.style.color = "var(--berry)";
+    return;
+  }
+  const body = new URLSearchParams();
+  body.set(NEWSLETTER.fields.name,  name);
+  body.set(NEWSLETTER.fields.email, email);
+  // Google Forms doesn't send CORS headers; use no-cors so the submission goes through
+  // even though we can't read the response.
+  fetch(NEWSLETTER.formAction, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString(),
+  }).then(() => {
+    status.textContent = "Thank you! You'll hear from us soon.";
+    status.style.color = "var(--vine-700)";
+    form.reset();
+  }).catch(() => {
+    // Even with no-cors, fetch shouldn't reject on the Google Forms endpoint,
+    // but if something goes wrong we still give feedback.
+    status.textContent = "Thank you! (If you don't hear back, please try again.)";
+    status.style.color = "var(--vine-700)";
+    form.reset();
+  });
+}
+
+/* ------------- Email-backup for journal ------------- */
+function journalAsText() {
+  const lines = [];
+  lines.push("VINES OF LIFE — Come & Abide");
+  lines.push("My journal — exported " + new Date().toLocaleString());
+  lines.push("=".repeat(48));
+  lines.push("");
+  const mods = MODULES.filter(m => m.kind === "module");
+  mods.forEach(m => {
+    const p = state.progress[m.id];
+    if (!p) return;
+    const hasAny = p.commitment ||
+      (p.journal_multi && p.journal_multi.some(x => x)) ||
+      Object.values(p.notes || {}).some(x => x) ||
+      p.complete || (p.days && p.days.some(d => d));
+    if (!hasAny) return;
+    lines.push(`MODULE ${m.num} — ${m.title}${p.complete ? "  [complete]" : ""}`);
+    lines.push("-".repeat(48));
+    if (p.journal_multi && p.journal_multi.some(x => x)) {
+      lines.push("Reflections:");
+      p.journal_multi.forEach((t, i) => {
+        if (t) { lines.push(`  Q${i+1}. ${t}`); }
+      });
+      lines.push("");
+    }
+    if (p.notes && Object.values(p.notes).some(x => x)) {
+      lines.push("Practice notes:");
+      for (let d = 1; d <= 7; d++) {
+        const v = p.notes["d" + d];
+        if (v) lines.push(`  Day ${d}: ${v}`);
+      }
+      lines.push("");
+    }
+    if (p.commitment) {
+      lines.push("Commitment:");
+      lines.push(`  ${p.commitment}`);
+      lines.push("");
+    }
+    lines.push("");
+  });
+  if (lines.length <= 4) {
+    lines.push("(No journal entries yet — start a module to begin writing.)");
+  }
+  return lines.join("\n");
+}
+
+function emailMyJournal() {
+  const text = journalAsText();
+  const subject = "Vines of Life — My Journal Backup";
+  // mailto body limit is ~1900 chars reliably. If we're over, warn.
+  const MAX = 1900;
+  if (encodeURIComponent(text).length > MAX) {
+    const proceed = confirm(
+      "Your journal is long enough that some email clients may truncate it when opened " +
+      "via 'Email myself.' For a full backup, use Download (JSON) or Print instead.\n\n" +
+      "Open email anyway with what fits?"
+    );
+    if (!proceed) return;
+  }
+  const href = "mailto:?subject=" + encodeURIComponent(subject) +
+               "&body="    + encodeURIComponent(text);
+  window.location.href = href;
 }
 
 function renderFeelingsPicker() {

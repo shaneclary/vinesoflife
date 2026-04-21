@@ -50,6 +50,92 @@ Because it's a single static file, you can host it anywhere:
 - **Netlify / Cloudflare Pages / Vercel** — point at this repo, no build command, publish directory is the repo root.
 - **Any web host** — upload `index.html`.
 
+## Newsletter setup
+
+The site has a "Stay in touch" signup form that posts to a **Google Form** you own. Responses land in a Google Sheet you control. No server, no database, no cost. Until you configure it, the form is hidden.
+
+### One-time setup (about 5 minutes)
+
+1. **Create the Google Form.**
+   Go to [forms.google.com](https://forms.google.com) → blank form → title it "Vines of Life — Keep me updated." Add two short-answer fields:
+   - `Name` (required)
+   - `Email` (required — under field options, toggle *Response validation → Text → Email*)
+
+2. **Connect a Google Sheet for responses.**
+   Click the **Responses** tab in the form editor → the green Sheets icon → "Create a new spreadsheet." Every signup now appears as a row in that Sheet.
+
+3. **Get the form's submit URL and field IDs.**
+   In the form editor, click the three-dot menu (top-right) → **Get pre-filled link**. Fill the fields with *anything* (e.g., "Name" and `a@a.com`) and click **Get link**. Copy the URL. It will look like:
+
+   ```
+   https://docs.google.com/forms/d/e/1FAIpQLSxxxxxx/viewform?usp=pp_url&entry.1234567890=Name&entry.9876543210=a%40a.com
+   ```
+
+4. **Extract the three values** you need for configuration:
+   - **Form action URL** — take the URL up to `/viewform` and replace `viewform` with `formResponse`:
+     ```
+     https://docs.google.com/forms/d/e/1FAIpQLSxxxxxx/formResponse
+     ```
+   - **Name field entry ID** — the `entry.NNNNNNNNNN` that appeared *before* the fake name.
+   - **Email field entry ID** — the `entry.NNNNNNNNNN` that appeared *before* the fake email.
+
+5. **Paste them into `index.html`.**
+   Near the top of the `<script>` block, find:
+   ```js
+   const NEWSLETTER = {
+     enabled: false,
+     formAction: "",
+     fields: {
+       name:  "entry.XXXXXXXXXX",
+       email: "entry.XXXXXXXXXX",
+     },
+   };
+   ```
+   Change to:
+   ```js
+   const NEWSLETTER = {
+     enabled: true,
+     formAction: "https://docs.google.com/forms/d/e/1FAIpQLSxxxxxx/formResponse",
+     fields: {
+       name:  "entry.1234567890",
+       email: "entry.9876543210",
+     },
+   };
+   ```
+
+6. **Commit and push.**
+   ```
+   git add index.html
+   git commit -m "Enable newsletter signup via Google Forms"
+   git push
+   ```
+   The form appears on the Welcome screen within ~30 seconds.
+
+### Testing
+
+Visit the live site, sign up with a test email, then check your Google Sheet — you should see a new row. If nothing appears:
+- Confirm `enabled: true`.
+- Confirm `formAction` ends in `/formResponse` (not `/viewform`).
+- Confirm `entry.XXXX` IDs match the ones from your pre-filled link.
+- Open the browser devtools Network tab during submit — you should see a POST to `docs.google.com/forms/...` that returns status `0` (this is normal; Google Forms doesn't send CORS headers).
+
+### Alternative providers (if you outgrow Google Forms)
+
+The form posts a standard `application/x-www-form-urlencoded` body. To switch providers, change `formAction` and the field names:
+
+- **Mailchimp:** use the embedded form's `action` URL; fields are typically `FNAME` and `EMAIL` (different from `entry.*`).
+- **Buttondown:** POST to `https://buttondown.email/api/emails/embed-subscribe/<your-username>`; field is `email`.
+- **ConvertKit (Kit):** POST to `https://app.kit.com/forms/<id>/subscriptions`; fields are `name` and `email_address`.
+- **Formspree:** POST to `https://formspree.io/f/<form-id>`; fields are free-form.
+
+Each of these uses a similar `no-cors` submit pattern to Google Forms; you shouldn't need code changes beyond the `NEWSLETTER` config.
+
+## Privacy & data
+
+- **Participant journals** are stored in each reader's own browser (`localStorage`). They never leave the user's device. The site never uploads journal data anywhere.
+- **Newsletter signups** (if enabled) go directly from the reader's browser to Google (or whichever provider you configured). The website itself never touches this data either.
+- **GitHub Pages traffic analytics** are available under the repo's **Insights → Traffic** tab (aggregate page views and referrers, no personal data).
+
 ## Sources & attribution
 
 The teaching draws on three streams, all credited on the in-site **Sources & Attribution** page:
