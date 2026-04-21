@@ -1,0 +1,1888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vines of Life — Come & Abide</title>
+<meta name="description" content="A free, self-paced program of emotional healing, listening partnership, and community — rooted in love, open to all.">
+<style>
+  /* ---------- Design tokens ---------- */
+  :root {
+    --vine-900: #1f3a24;
+    --vine-700: #305a38;
+    --vine-500: #5a8f5c;
+    --vine-300: #a9c9a3;
+    --vine-100: #e4efde;
+    --cream:    #faf6ec;
+    --paper:    #fffdf6;
+    --ink:      #232321;
+    --ink-soft: #55554f;
+    --ochre:    #b48544;
+    --berry:    #8a2f3a;
+    --shadow:   0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(31,58,36,.08);
+    --radius:   12px;
+    --maxw:     64rem;
+    --serif:    "Iowan Old Style","Palatino","Palatino Linotype",Georgia,serif;
+    --sans:     -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { font-family: var(--serif); color: var(--vine-900); line-height: 1.25; margin: 0 0 .6em; }
+  h1 { font-size: clamp(1.9rem, 2.4vw + 1rem, 2.8rem); }
+  h2 { font-size: clamp(1.5rem, 1.2vw + 1rem, 2rem); }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.05rem; }
+  p  { margin: 0 0 1em; }
+  a  { color: var(--vine-700); }
+  a:hover { color: var(--berry); }
+
+  /* ---------- App shell ---------- */
+  .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  @media (max-width: 860px) { .app { grid-template-columns: 1fr; } }
+
+  aside.sidebar {
+    background: var(--vine-900);
+    color: var(--vine-100);
+    padding: 1.4rem 1.2rem 2rem;
+    position: sticky; top: 0; align-self: start;
+    height: 100vh; overflow-y: auto;
+  }
+  @media (max-width: 860px) {
+    aside.sidebar { position: static; height: auto; }
+  }
+  .brand { display: flex; align-items: center; gap: .6rem; margin-bottom: 1.3rem; }
+  .brand .logo {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, var(--vine-300), var(--vine-700));
+    display: grid; place-items: center;
+    color: var(--cream); font-family: var(--serif); font-weight: 700;
+    box-shadow: inset 0 0 0 2px var(--vine-100);
+  }
+  .brand h1 {
+    color: var(--cream); font-size: 1.15rem; margin: 0;
+    letter-spacing: .02em;
+  }
+  .brand small { display: block; color: var(--vine-300); font-size: .78rem; font-family: var(--sans); font-weight: 400; }
+
+  .mode-toggle {
+    display: flex; gap: 4px; padding: 4px;
+    background: rgba(255,255,255,.08); border-radius: 999px;
+    margin-bottom: 1.1rem;
+  }
+  .mode-toggle button {
+    flex: 1; background: transparent; color: var(--vine-100);
+    border: 0; padding: .45rem .6rem; border-radius: 999px;
+    font: inherit; font-size: .82rem; cursor: pointer;
+  }
+  .mode-toggle button[aria-pressed="true"] {
+    background: var(--cream); color: var(--vine-900); font-weight: 600;
+  }
+
+  .progress-wrap { margin: 0 0 1rem; }
+  .progress-wrap .label {
+    display: flex; justify-content: space-between;
+    font-size: .78rem; color: var(--vine-300); margin-bottom: .3rem;
+  }
+  .progress-bar {
+    height: 6px; background: rgba(255,255,255,.1);
+    border-radius: 999px; overflow: hidden;
+  }
+  .progress-bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--vine-300), var(--cream));
+    transition: width .4s ease;
+  }
+
+  nav.modnav { display: flex; flex-direction: column; gap: 2px; margin-top: .5rem; }
+  nav.modnav a {
+    display: flex; align-items: center; gap: .55rem;
+    padding: .45rem .6rem; border-radius: 8px;
+    color: var(--vine-100); text-decoration: none;
+    font-size: .92rem;
+  }
+  nav.modnav a:hover { background: rgba(255,255,255,.08); color: var(--cream); }
+  nav.modnav a.active { background: var(--vine-700); color: var(--cream); font-weight: 600; }
+  nav.modnav a .num {
+    width: 22px; height: 22px; flex: 0 0 22px;
+    border-radius: 50%; background: rgba(255,255,255,.08);
+    display: grid; place-items: center;
+    font-size: .72rem; font-weight: 600;
+  }
+  nav.modnav a.done .num { background: var(--vine-300); color: var(--vine-900); }
+  nav.modnav a.done .num::before { content: "✓"; }
+  nav.modnav a.done .num .n { display: none; }
+  nav.modnav hr {
+    border: 0; border-top: 1px solid rgba(255,255,255,.1);
+    margin: .7rem 0;
+  }
+  nav.modnav .meta {
+    color: var(--vine-300); text-decoration: none;
+    font-size: .82rem; padding: .35rem .6rem; border-radius: 8px;
+  }
+  nav.modnav .meta:hover { background: rgba(255,255,255,.08); color: var(--cream); }
+
+  /* ---------- Content ---------- */
+  main.content { padding: 2.2rem clamp(1rem, 4vw, 3.2rem); max-width: var(--maxw); }
+  .card {
+    background: var(--paper);
+    border: 1px solid rgba(31,58,36,.08);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.6rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.4rem;
+  }
+  .eyebrow {
+    display: inline-block; font-size: .72rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ochre); font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  blockquote.scripture {
+    border-left: 3px solid var(--ochre);
+    background: #fbf2e2;
+    padding: .9rem 1rem;
+    margin: 0 0 1.2rem;
+    border-radius: 0 8px 8px 0;
+    color: #5e4016;
+    font-style: italic;
+  }
+  blockquote.scripture cite { display: block; margin-top: .4rem; font-style: normal; font-size: .85rem; color: #8a6332; }
+
+  .callout {
+    background: var(--vine-100);
+    border-left: 3px solid var(--vine-500);
+    padding: .9rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 0 0 1.1rem;
+  }
+  .callout.berry { background: #fbeef0; border-left-color: var(--berry); }
+  .callout h4 { margin: 0 0 .3rem; color: var(--vine-900); }
+  .callout.berry h4 { color: var(--berry); }
+
+  ul.clean, ol.clean { padding-left: 1.2rem; }
+  ul.clean li, ol.clean li { margin-bottom: .4em; }
+
+  /* Buttons */
+  button.btn, a.btn {
+    font: inherit; cursor: pointer;
+    border: 1px solid var(--vine-700);
+    background: var(--vine-700); color: var(--cream);
+    padding: .55rem .95rem; border-radius: 8px;
+    text-decoration: none; display: inline-block;
+  }
+  button.btn:hover, a.btn:hover { background: var(--vine-900); }
+  button.btn.ghost, a.btn.ghost {
+    background: transparent; color: var(--vine-700);
+  }
+  button.btn.ghost:hover, a.btn.ghost:hover { background: var(--vine-100); color: var(--vine-900); }
+  button.btn.sm { padding: .35rem .7rem; font-size: .85rem; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+
+  /* Journal + form fields */
+  label.field { display: block; margin: .8rem 0; }
+  label.field > span.label {
+    display: block; font-weight: 600; color: var(--vine-900); margin-bottom: .3rem;
+  }
+  textarea, input[type="text"] {
+    width: 100%; font: inherit; color: var(--ink);
+    background: #fff; border: 1px solid rgba(31,58,36,.18);
+    border-radius: 8px; padding: .6rem .75rem; resize: vertical;
+  }
+  textarea:focus, input[type="text"]:focus {
+    outline: 2px solid var(--vine-500); outline-offset: 0; border-color: var(--vine-500);
+  }
+  textarea { min-height: 110px; }
+
+  /* 7-day practice */
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: .5rem; margin-bottom: .8rem; }
+  .days .day {
+    border: 1px solid rgba(31,58,36,.18);
+    background: #fff; border-radius: 10px;
+    padding: .6rem .3rem; text-align: center;
+    cursor: pointer; user-select: none;
+    font-size: .82rem; color: var(--ink-soft);
+    transition: background .15s, border-color .15s;
+  }
+  .days .day.checked {
+    background: var(--vine-100); border-color: var(--vine-500); color: var(--vine-900); font-weight: 600;
+  }
+  .days .day .num { display: block; font-family: var(--serif); font-size: 1.15rem; color: var(--vine-900); }
+  .day-note { margin-top: .4rem; }
+  .day-note summary { cursor: pointer; color: var(--vine-700); font-size: .9rem; margin-bottom: .3rem; }
+  .day-note textarea { min-height: 70px; }
+
+  /* Feelings picker */
+  .feelings-grid {
+    display: grid; gap: .4rem;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    max-height: 340px; overflow-y: auto; padding: .2rem;
+    background: var(--vine-100); border-radius: 8px;
+  }
+  .feelings-grid button {
+    font: inherit; font-size: .85rem;
+    background: #fff; border: 1px solid rgba(31,58,36,.1);
+    border-radius: 8px; padding: .45rem .3rem; cursor: pointer;
+    color: var(--ink); text-align: center;
+  }
+  .feelings-grid button:hover { background: var(--vine-100); }
+  .feelings-grid button[aria-pressed="true"] {
+    background: var(--vine-500); color: var(--cream); border-color: var(--vine-700);
+  }
+  .picked-feelings { margin-top: .6rem; font-size: .9rem; color: var(--vine-700); min-height: 1.4em; }
+
+  /* Discharge chart */
+  table.chart { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .93rem; }
+  table.chart th, table.chart td {
+    padding: .5rem .7rem; border-bottom: 1px solid rgba(31,58,36,.1); text-align: left; vertical-align: top;
+  }
+  table.chart th { background: var(--vine-100); color: var(--vine-900); font-family: var(--serif); font-weight: 700; }
+  table.chart tr:hover td { background: #fbf7e7; }
+
+  /* Group/individual conditional rendering */
+  [data-mode="group-only"]      { display: none; }
+  body.mode-group [data-mode="individual-only"] { display: none; }
+  body.mode-group [data-mode="group-only"]      { display: block; }
+
+  /* Attribution */
+  .attr {
+    font-size: .82rem; color: var(--ink-soft);
+    border-top: 1px dashed rgba(31,58,36,.2);
+    padding-top: .6rem; margin-top: 1rem; font-style: italic;
+  }
+  .attr strong { font-style: normal; color: var(--vine-700); }
+
+  /* Footer */
+  footer.site {
+    border-top: 1px solid rgba(31,58,36,.08);
+    padding: 2rem clamp(1rem,4vw,3.2rem);
+    color: var(--ink-soft); font-size: .9rem;
+    background: #f6efdd;
+  }
+  footer.site a { color: var(--vine-700); }
+
+  /* Mod pagination */
+  .modpage {
+    display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem;
+  }
+  .modpage a { flex: 1; }
+  .modpage a.ghost { text-align: center; }
+
+  /* Print */
+  @media print {
+    aside.sidebar, .mode-toggle, .actions, .modpage, footer.site { display: none !important; }
+    main.content { padding: 0; max-width: 100%; }
+    .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+    body { background: #fff; }
+  }
+
+  /* Welcome hero */
+  .hero {
+    background: linear-gradient(135deg, var(--vine-700) 0%, var(--vine-900) 100%);
+    color: var(--cream); padding: 2.2rem 2rem; border-radius: var(--radius);
+    margin-bottom: 1.6rem;
+  }
+  .hero h1 { color: var(--cream); margin-bottom: .5rem; }
+  .hero p { color: var(--vine-100); margin-bottom: 1rem; max-width: 44rem; }
+  .hero .btn { background: var(--cream); color: var(--vine-900); border-color: var(--cream); }
+  .hero .btn:hover { background: #fff; color: var(--vine-900); }
+  .hero .btn.ghost { background: transparent; color: var(--cream); border-color: var(--vine-100); }
+  .hero .btn.ghost:hover { background: rgba(255,255,255,.12); }
+
+  /* Commit card */
+  .commit-card {
+    background: #fffaf0;
+    border: 1px dashed var(--ochre);
+    border-radius: var(--radius); padding: 1.1rem 1.2rem;
+    font-family: var(--serif); color: #5e4016;
+  }
+  .commit-card strong { color: var(--berry); }
+
+  /* Inline notice */
+  .notice {
+    background: #fef8e6; border: 1px solid #f1d78c;
+    color: #6a4b0c; border-radius: 8px; padding: .7rem .9rem;
+    font-size: .88rem; margin: 0 0 1rem;
+  }
+</style>
+</head>
+<body class="mode-individual">
+
+<div class="app">
+  <aside class="sidebar" aria-label="Program navigation">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">V</div>
+      <h1>Vines of Life<small>Come &amp; Abide</small></h1>
+    </div>
+
+    <div class="mode-toggle" role="group" aria-label="Mode">
+      <button type="button" id="btn-mode-individual" aria-pressed="true">Individual</button>
+      <button type="button" id="btn-mode-group" aria-pressed="false">Group / Partner</button>
+    </div>
+
+    <div class="progress-wrap" aria-hidden="true">
+      <div class="label"><span>Progress</span><span id="progress-pct">0%</span></div>
+      <div class="progress-bar"><span id="progress-bar" style="width:0%"></span></div>
+    </div>
+
+    <nav class="modnav" id="modnav" aria-label="Modules"></nav>
+  </aside>
+
+  <main class="content" id="content" tabindex="-1">
+    <!-- rendered by router -->
+  </main>
+</div>
+
+<footer class="site">
+  <p><strong>Vines of Life — Come &amp; Abide</strong> is offered free of charge as a gift of love to anyone who wishes to walk it.
+     Your journal, progress, and commitments are saved privately in your browser only.
+     See <a href="#/resources">Sources &amp; Attribution</a> for full credit to the authors and traditions drawn on here.</p>
+  <p style="font-size:.82rem">&copy; Vines of Life. Scripture quotations are from public-domain translations (KJV / WEB) unless noted.
+     Third-party material is quoted for educational purposes with full attribution.</p>
+</footer>
+
+<script>
+/* ============================================================
+   Vines of Life — Come & Abide
+   Single-file web program. Vanilla JS. LocalStorage persistence.
+   ============================================================ */
+
+/* ------------- State ------------- */
+const STATE_KEY = "vol.state.v1";
+const DEFAULT_STATE = {
+  mode: "individual",
+  progress: {}, // keyed by module id -> { complete, days:[7 bool], journal, commitment, notes:{d1..d7}, feelings:[] }
+  created: Date.now(),
+};
+// Simple deep-clone for plain JSON data (broadly compatible).
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if (!raw) return clone(DEFAULT_STATE);
+    const obj = JSON.parse(raw);
+    return Object.assign(clone(DEFAULT_STATE), obj);
+  } catch (e) { return clone(DEFAULT_STATE); }
+}
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+  catch (e) { console.warn("Could not save", e); }
+}
+let state = loadState();
+
+function progressFor(id) {
+  if (!state.progress[id]) {
+    state.progress[id] = {
+      complete: false,
+      days: [false,false,false,false,false,false,false],
+      notes: {d1:"",d2:"",d3:"",d4:"",d5:"",d6:"",d7:""},
+      journal: "",
+      commitment: "",
+      feelings: [],
+    };
+  }
+  return state.progress[id];
+}
+
+/* ------------- Content: Modules ------------- */
+/* Each module:
+   { id, num, kind, title, subtitle, scripture, scriptureRef, teaching (HTML),
+     reflect: [prompt,...], livePractice:{title,daily:[7 strings]},
+     partnership:{prompt,...}, groupDiscussion:[...],
+     sources: [{title, author, note}], extra?: HTML } */
+
+const MODULES = [
+  {
+    id: "welcome", num: 0, kind: "intro",
+    title: "Welcome — Come & Abide",
+    subtitle: "How this program works",
+    scripture: "I am the vine, you are the branches. Whoever abides in me and I in him, he it is that bears much fruit, for apart from me you can do nothing.",
+    scriptureRef: "John 15:5",
+    teaching: `
+<p><strong>Vines of Life</strong> is a free, self-paced program that walks you through ten modules of inner
+work, emotional healing, and human connection. It is rooted in the teaching of Jesus and open to
+anyone — of any faith, or none — who wants to live more fully awake, more loving, and more free.</p>
+
+<p>The aim is not only to <em>read</em> this material but to <em>live</em> it. Every module includes:</p>
+
+<ul class="clean">
+  <li><strong>Teaching</strong> — the core idea, explained plainly.</li>
+  <li><strong>A Scripture anchor</strong> — one verse or passage to sit with.</li>
+  <li><strong>Reflection prompts</strong> — space to journal honestly. Saved privately to your device.</li>
+  <li><strong>A 7-day "Live It" practice</strong> — small daily actions that put the teaching in your body.</li>
+  <li><strong>A Listening Partnership exercise</strong> — structured time with another person, taking turns being heard.</li>
+  <li><strong>Group discussion questions</strong> — when two or three gather together.</li>
+  <li><strong>A Commitment card</strong> — one sentence you carry forward.</li>
+</ul>
+
+<div class="callout">
+  <h4>Individual or Group?</h4>
+  <p>Use the toggle at the top-left to switch between <strong>Individual</strong> (solo, self-paced) and
+     <strong>Group / Partner</strong> mode (for pairs, small groups, or a cohort). Some sections will
+     appear or hide accordingly — but all the teaching and journaling works either way.</p>
+</div>
+
+<h3>Ground rules</h3>
+<ol class="clean">
+  <li><strong>Go at your own pace.</strong> A common rhythm is one module per week, but you can take
+      longer. What matters is that you practice, not that you "finish."</li>
+  <li><strong>Confidentiality.</strong> What is shared in a listening partnership stays between the two
+      of you. This is sacred space.</li>
+  <li><strong>You are not your feelings or your behavior.</strong> You are loved. Both are welcome here.</li>
+  <li><strong>No advice-giving.</strong> In listening partnerships, we <em>listen</em> — we do not fix,
+      analyze, or interpret.</li>
+  <li><strong>This is not therapy.</strong> If you are in crisis, in acute trauma, or actively unsafe,
+      please reach out to a licensed professional or crisis line. This program complements but does not
+      replace clinical care.</li>
+</ol>
+
+<h3>A note on sources</h3>
+<p>The teaching here is drawn from the <em>Vines of Life / IDmP (Interactive Discipline management
+Platform)</em> framework, from Scripture, and — with attribution — from the field of Re-evaluation
+Counseling developed by Harvey Jackins (Rational Island Publishers). Full citations are on the
+<a href="#/resources">Sources &amp; Attribution</a> page and at the bottom of each module that uses them.</p>
+`,
+    reflect: [],
+    noPractice: true,
+    actions: [
+      { label: "Begin Module 1 →", href: "#/module/1", primary: true },
+      { label: "Read Sources", href: "#/resources", primary: false },
+    ],
+  },
+
+  /* ============ MODULE 1 ============ */
+  {
+    id: "m1", num: 1, kind: "module",
+    title: "Love Abundantly: The Root",
+    subtitle: "The energy of creation",
+    scripture: "Beloved, let us love one another, for love is from God, and whoever loves has been born of God and knows God. Anyone who does not love does not know God, because God is love. … There is no fear in love, but perfect love casts out fear.",
+    scriptureRef: "1 John 4:7–8, 18",
+    teaching: `
+<p>At the heart of Vines of Life is a simple claim: <strong>love is the root</strong>. Not love as a
+sentiment we summon on good days, but love as the generative energy of the universe itself — the
+ground in which every good thing grows.</p>
+
+<blockquote class="scripture">
+  LOVE ABUNDANTLY — with no end, forever — the energy of creation.<br>
+  PEACE — connected to being, free of thinking.<br>
+  JOY — filled with the goodness of life.<br>
+  FORGIVENESS — ending judgment.<br>
+  <strong>The path to human liberation: freedom from negative emotional tension.</strong>
+  <cite>— Vines of Life / IDmP foundation chart</cite>
+</blockquote>
+
+<p>These four — love, peace, joy, forgiveness — are not achievements to earn. They are the fruit that
+grows when we remain connected to the vine. Jesus did not say "strive harder to produce fruit." He
+said <em>abide in me</em> (John 15:4). The fruit grows on its own, in its season, when we stay rooted.</p>
+
+<h3>The opposite root</h3>
+<p>If love is the root of life, its opposite is the root of <em>dis</em>-function: fear, shame, and the
+belief that we are alone and unloved. Nearly every human hurt — in us and around us — grows from
+someone, somewhere, believing a lie about their own belovedness.</p>
+
+<p>The first move in this program is not to try harder. It is to sit long enough in the love of God
+to begin to believe it is true for <em>you</em>. Not as a concept. As your own.</p>
+
+<h3>What "abiding" looks like in practice</h3>
+<ul class="clean">
+  <li>A few minutes each day, still, receiving love before you try to give any.</li>
+  <li>Noticing when you are operating from fear vs. from love — and gently returning.</li>
+  <li>Loving another person today, in a small, specific, costly way.</li>
+</ul>
+`,
+    reflect: [
+      "Where in your life right now are you trying to produce fruit without staying rooted?",
+      "Write about a time you felt deeply, unconditionally loved. What was true about you in that moment?",
+      "What would change in your body, your voice, your choices today if you believed 'there is no fear in love' was literally true for you?",
+    ],
+    livePractice: {
+      title: "7 Days of Abiding",
+      daily: [
+        "Day 1 — Five minutes of silence. Breathe in: 'I am loved.' Breathe out: 'I release fear.' Write one sentence afterward.",
+        "Day 2 — Text or tell one person today: 'I love you' (or 'I'm glad you exist'). Notice what rises in you.",
+        "Day 3 — Read 1 John 4:7–19 slowly, twice. Underline the phrase that lands hardest.",
+        "Day 4 — Do one small act of love for a stranger. No one needs to know.",
+        "Day 5 — Ask: 'Where am I afraid today?' Name it in writing. Let love be the larger room it sits inside.",
+        "Day 6 — Spend 10 minutes outside noticing living things — plants, creatures, people. 'Everything is connected by love.'",
+        "Day 7 — Write a short letter from God (or Love itself) to you. Read it aloud.",
+      ],
+    },
+    partnership: {
+      prompt: "Find a partner. Set a timer for 10 minutes each way. Trade turns. The listener listens without interrupting, advising, or fixing. At the end, say only: 'Thank you.' Prompt: <em>'One place I am afraid to be fully loved is…'</em>",
+    },
+    groupDiscussion: [
+      "What does it mean in practice to stay 'rooted' in love rather than 'working for' love?",
+      "Where in our community — or our family — is the root fear rather than love? What would shift?",
+      "Share a Scripture, story, or song that has watered your root this year.",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "Love Abundantly foundation chart" },
+      { author: "1 John 4:7–21", title: "Scripture (public domain)" },
+      { author: "John 15", title: "Scripture (public domain)" },
+    ],
+  },
+
+  /* ============ MODULE 2 ============ */
+  {
+    id: "m2", num: 2, kind: "module",
+    title: "Know Thy Self",
+    subtitle: "The door to the inner and outer world",
+    scripture: "Search me, O God, and know my heart; try me and know my anxious thoughts. See if there is any grievous way in me, and lead me in the way everlasting.",
+    scriptureRef: "Psalm 139:23–24",
+    teaching: `
+<p>Self-awareness is the first door. You cannot heal what you will not look at, and you cannot offer
+your real self in love if you do not yet know what is actually happening inside you.</p>
+
+<div class="callout">
+  <h4>Self-Awareness (Know Thy Self)</h4>
+  <ul class="clean">
+    <li>The door to experiencing the inner &amp; the outer world (failure &amp; success).</li>
+    <li>Being in the NOW at peace.</li>
+    <li>Feeling others.</li>
+    <li>To be centered.</li>
+    <li>See humor, to laugh at one's self.</li>
+  </ul>
+  <div class="attr"><strong>Source:</strong> Vines of Life / IDmP — "Self-Awareness" handout.</div>
+</div>
+
+<p>Most of us were never taught a <em>vocabulary</em> for what we feel. We learned four or five words
+— <em>fine, tired, stressed, okay, mad</em> — and we stuffed all of human experience into them. That
+stuffing is how feelings turn into patterns, and patterns into the things we do that we did not choose.</p>
+
+<h3>Begin by naming</h3>
+<p>The practice below gives you a wider vocabulary. Use it several times a day for a week. Don't
+explain or justify. Just name. Naming is the first act of freedom.</p>
+`,
+    extra: `
+<div class="card">
+  <span class="eyebrow">Practice</span>
+  <h3>Are You AWARE of How You Are Feeling Now?</h3>
+  <p>Tap any that apply right now. You can pick more than one. There are no wrong answers.</p>
+  <div id="feelings-grid" class="feelings-grid"></div>
+  <div class="picked-feelings" id="picked-feelings" aria-live="polite"></div>
+  <div class="attr"><strong>Source:</strong> Adapted from Vines of Life / IDmP feelings-awareness chart.</div>
+</div>
+`,
+    reflect: [
+      "What feelings did you pick above, and what (if anything) is each one telling you?",
+      "Which feelings are hardest for you to let yourself have? Whose voice says you shouldn't have them?",
+      "What would it mean today to 'see humor, to laugh at one's self'?",
+    ],
+    livePractice: {
+      title: "7 Days of Naming",
+      daily: [
+        "Day 1 — Three times today (morning, afternoon, evening), pause and name three feelings in you. Write them here.",
+        "Day 2 — Notice one feeling you usually push away. Let it sit with you for five minutes without trying to change it.",
+        "Day 3 — Ask one trusted person: 'How are you, really?' Listen without fixing.",
+        "Day 4 — Journal honestly about the thing you have been avoiding thinking about.",
+        "Day 5 — Laugh at yourself once, gently, for something small. Write it down.",
+        "Day 6 — Read Psalm 139 slowly. Where does it comfort you? Where does it unsettle you?",
+        "Day 7 — Write: 'Today I know myself a little better because…'",
+      ],
+    },
+    partnership: {
+      prompt: "Ten minutes each. Prompt: <em>'A feeling I have had a hard time letting myself feel is…'</em> Listener's only response at the end: 'Thank you for trusting me.'",
+    },
+    groupDiscussion: [
+      "What family, cultural, or religious messages shaped which feelings you were 'allowed' to have?",
+      "What would your relationships look like if everyone in them knew their own feelings better?",
+      "Share: one feeling you are getting more fluent with lately.",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "Self-Awareness (Know Thy Self) handout" },
+      { author: "Vines of Life / IDmP", title: "Feelings Awareness chart — 'Are You AWARE of How You Are Feeling Now?'" },
+      { author: "Psalm 139", title: "Scripture (public domain)" },
+    ],
+  },
+
+  /* ============ MODULE 3 ============ */
+  {
+    id: "m3", num: 3, kind: "module",
+    title: "The Three Domains of Learning",
+    subtitle: "We learn with our whole selves, not only our heads",
+    scripture: "Do not be conformed to this world, but be transformed by the renewing of your mind, that by testing you may discern what is the will of God.",
+    scriptureRef: "Romans 12:2",
+    teaching: `
+<p>Why does so much teaching "go in one ear and out the other"? Why do people agree with a sermon
+and then live the opposite of it on Monday?</p>
+
+<p>Because most education aims at only part of a person.</p>
+
+<div class="callout">
+  <h4>The Three Domains of Learning</h4>
+  <p><strong>1. Motor-Sensory.</strong> The autonomic nervous system, all body systems. How the body
+     holds, moves, and senses information.</p>
+  <p><strong>2. Cognition.</strong> The ability to manage information and data from our senses and
+     judgments. Thinking, memory, imagination.</p>
+  <p><strong>3. The Effective (Affective) Domain — Values &amp; Feelings.</strong> <em>To be for</em> something,
+     or <em>not to be for</em> it. The keys: emotional response. This is the domain most schools, and
+     most churches, skip.</p>
+  <div class="attr"><strong>Source:</strong> Vines of Life / IDmP — "The Three Domains of Learning" diagram.</div>
+</div>
+
+<p>A dysfunctional educational system focuses mainly on the body-as-machine and cognition-as-rational-
+judgment. The third domain — what we feel and what we are <em>for</em> — is treated as private,
+unserious, or dangerous. But that domain is the one that actually moves a human being to act.</p>
+
+<h3>Why it matters here</h3>
+<p>Vines of Life is not a course you will <em>know</em> your way through. It is a life you will
+<em>feel</em> your way into. Each module asks you to take the teaching into your body (practice), your
+mind (reflection), and your heart (commitment). All three. This is how real transformation happens —
+what Paul calls <em>the renewing of your mind</em>.</p>
+`,
+    reflect: [
+      "Of the three domains — body, mind, heart — which one has been most developed in your life so far? Which has been most neglected?",
+      "Think of something you 'know' but don't live. In which domain is the gap?",
+      "What would it look like this week to bring your body, your thinking, and your values into the same room?",
+    ],
+    livePractice: {
+      title: "7 Days of Whole-Person Learning",
+      daily: [
+        "Day 1 — Pick one teaching you already 'know but don't live.' Write it down.",
+        "Day 2 — Do it with your body today, just once, no matter how small.",
+        "Day 3 — Think about why you haven't lived it. What is the fear? The pattern?",
+        "Day 4 — Feel into it. What sensation does it produce in your chest, stomach, throat?",
+        "Day 5 — Practice it again today. Notice what was easier, what was still hard.",
+        "Day 6 — Share it with one person. Ask them to ask you about it in a week.",
+        "Day 7 — Write: 'This week I did not just know X. I began to live it by…'",
+      ],
+    },
+    partnership: {
+      prompt: "Ten minutes each. Prompt: <em>'A place in my life where my head and my heart and my body are not yet saying the same thing is…'</em>",
+    },
+    groupDiscussion: [
+      "Where does our church / community / workplace teach the head but skip the heart?",
+      "What would a curriculum of <em>whole persons</em> look like in a family? In a school?",
+      "Where have you seen someone truly integrated — body, mind, and heart — teaching by example?",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "'The Three Domains of Learning' diagram" },
+      { author: "Vines of Life / IDmP", title: "'The building block of perceptual LEARNING is the Door and Love is the key' handout" },
+      { author: "Romans 12:1–2", title: "Scripture (public domain)" },
+    ],
+  },
+
+  /* ============ MODULE 4 ============ */
+  {
+    id: "m4", num: 4, kind: "module",
+    title: "The Pathology of Dis-functionality",
+    subtitle: "Look around you — and inside you",
+    scripture: "Surely he has borne our griefs and carried our sorrows … But he was pierced for our transgressions, he was crushed for our iniquities; upon him was the chastisement that brought us peace.",
+    scriptureRef: "Isaiah 53:4–5",
+    teaching: `
+<p>Before we can walk a path of healing, we have to be honest about what we are walking out of.</p>
+
+<div class="callout berry">
+  <h4>The Pathology of Dis-functionality</h4>
+  <p><strong>In our personal life, our family life, community life, organizational life, and our
+     spiritual life.</strong></p>
+  <p><strong>Look around you…</strong> Poverty. Racism. Sexism. Adultism. Ageism. Able-bodyism.
+     Hate. War. Violence. Child abuse. Gay-bashing. And the long list of human oppressive realities.</p>
+  <p><strong>There must be a reason why.</strong></p>
+  <div class="attr"><strong>Source:</strong> Vines of Life / IDmP — "The Pathology of Dis-functionality" and "What Is Internalized Oppression?" handouts.</div>
+</div>
+
+<h3>Internalized oppression</h3>
+<p>Every child is born trusting, curious, and capable of love. Then the world gets hold of them. They
+are told, directly and indirectly — by family, school, church, media, and structural systems —
+<em>who they are, what they are worth, and what is possible for them.</em> Those messages cling. They
+get <em>internalized</em>. And then we live them out, often for a lifetime, sometimes passing them on
+to our own children.</p>
+
+<p>The oppressive system does not need to keep hurting you directly once you are doing its work from
+the inside.</p>
+
+<h3>But Still We Rise</h3>
+<p>Naming this is not despair. It is the ground of hope. Because what has been taught can be
+<em>un</em>taught. What has been internalized can be <em>released</em>. And what has been done to us
+does not have the last word. In the language of Scripture: <em>He came to set the captives free</em>
+(Luke 4:18). In the language of our tradition: <strong>BUT STILL WE RISE.</strong></p>
+`,
+    reflect: [
+      "Name one message you absorbed as a child about who you were or what was possible for you — that you now suspect was a lie.",
+      "Where do you see that same message still shaping how you show up today?",
+      "What would it mean for you to 'rise' from that message — not bitterly, but as a person who knows they are loved?",
+    ],
+    livePractice: {
+      title: "7 Days of Honest Looking",
+      daily: [
+        "Day 1 — Write down three messages you received growing up about your body, your worth, or your place in the world.",
+        "Day 2 — For each, ask: who taught me this? What did they believe? Were they right?",
+        "Day 3 — Watch or read news today with one eye on: 'whose pain is being ignored here?' Journal briefly.",
+        "Day 4 — Ask one older person in your life about an oppression they lived through and how they survived it.",
+        "Day 5 — Notice one place you participate in a system that hurts someone. Do not shame yourself. Just notice.",
+        "Day 6 — Do one concrete thing today that resists the message from Day 1.",
+        "Day 7 — Write: 'What has been done to me does not have the last word because…'",
+      ],
+    },
+    partnership: {
+      prompt: "Fifteen minutes each. Prompt: <em>'One lie the world tried to tell me about myself is… And what I am learning is actually true is…'</em>",
+    },
+    groupDiscussion: [
+      "Where in our community do we see internalized oppression being passed on to the next generation?",
+      "What is one specific, concrete thing our group could do to help 'set captives free' in our own neighborhood?",
+      "Share a story of someone who 'rose' despite what was done to them.",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "'The Pathology of Dis-functionality' handout" },
+      { author: "Vines of Life / IDmP", title: "'What Is Internalized Oppression?' handout" },
+      { author: "Isaiah 53; Luke 4:18", title: "Scripture (public domain)" },
+      { author: "Maya Angelou", title: "'Still I Rise' — referenced phrase; poem © Maya Angelou (not reproduced here; read in original)" },
+    ],
+  },
+
+  /* ============ MODULE 5 ============ */
+  {
+    id: "m5", num: 5, kind: "module",
+    title: "Beginning a Listening Partnership",
+    subtitle: "The core practice of the program",
+    scripture: "Let every person be quick to hear, slow to speak, slow to anger; for the anger of man does not produce the righteousness of God.",
+    scriptureRef: "James 1:19–20",
+    teaching: `
+<p>If you do only one thing from this program for the rest of your life, let it be this. Nothing else
+we teach will go deep without it.</p>
+
+<p>A <em>Listening Partnership</em> is a simple, structured practice: two people, equal time each,
+taking turns being fully heard by the other. No advice. No fixing. No interpreting. No "me too"
+stories. Just the gift of complete attention.</p>
+
+<div class="callout">
+  <h4>How it works</h4>
+  <ol class="clean">
+    <li>Choose a partner. Someone you trust enough — but not necessarily your closest person. Often a
+        near-stranger can listen better because they have less agenda.</li>
+    <li>Agree on a time and length. 20 minutes total is a good start — 10 each.</li>
+    <li>Decide who goes first. Set a timer.</li>
+    <li>Partner A talks. Partner B listens — eyes, attention, warmth. No interrupting.</li>
+    <li>When the timer rings, switch. Partner B talks; Partner A listens.</li>
+    <li>Thank each other. What is shared stays between you. You do not "process" it later.</li>
+  </ol>
+</div>
+
+<h3>The rules for the listener</h3>
+<ul class="clean">
+  <li><strong>Warm, undivided attention.</strong> Phone away. Eye contact when you can.</li>
+  <li><strong>No advice.</strong> Not even good advice. Especially not good advice.</li>
+  <li><strong>No interpreting.</strong> You are not a therapist; you are a companion.</li>
+  <li><strong>Permit and encourage emotional release.</strong> If they cry, let them cry. If they
+      laugh, laugh with them. If they are silent, be silent with them.</li>
+  <li><strong>Their time is theirs.</strong> You will get yours.</li>
+</ul>
+
+<h3>The rules for the talker</h3>
+<ul class="clean">
+  <li>You can talk about anything, or nothing. Silence is fine.</li>
+  <li>You don't have to be interesting, articulate, or fair.</li>
+  <li>Feelings are welcome — including the ones you have been warned off of.</li>
+  <li>You can cry, laugh, shake, yawn. All of these are the body releasing. (More on this in Module 6.)</li>
+  <li>This is not therapy. If you are in acute crisis, please see a professional too.</li>
+</ul>
+
+<blockquote class="scripture">
+  "It's not difficult to be a re-evaluation counselor, and yet in a sense, it's the work of a
+  lifetime. The basic rule is this: give your attention. Give it warmly. Assume the best of the
+  person you are with. Be relaxed and unafraid in the face of their distress — because their distress
+  is old, not new, and can safely be released now."
+  <cite>— paraphrase of "Becoming a Counselor," from <em>Fundamentals of Co-Counseling Manual</em>, Harvey Jackins, Rational Island Publishers. Quoted for educational use.</cite>
+</blockquote>
+`,
+    reflect: [
+      "Who in your life, past or present, has truly listened to you? What did they do (or not do) that made it possible?",
+      "What do you tend to do when someone is in pain — listen, or fix? What are you afraid will happen if you just listen?",
+      "Who could you invite into a listening partnership this week?",
+    ],
+    livePractice: {
+      title: "7 Days of Listening Practice",
+      daily: [
+        "Day 1 — Invite a partner. Send the message today. (See 'Starter message' below.)",
+        "Day 2 — Schedule your first session. Read the rules together before you start.",
+        "Day 3 — Hold your first 20-minute session (10 + 10). Afterwards, write how it felt.",
+        "Day 4 — Notice during a normal conversation today: how many times do you interrupt, advise, or redirect? Just count.",
+        "Day 5 — Have one conversation today where you only listen. Ask one question at most.",
+        "Day 6 — Pray or sit quietly asking, 'God, how do you listen to me?' Journal what comes.",
+        "Day 7 — Hold your second session with your partner. Compare to the first.",
+      ],
+    },
+    partnership: {
+      prompt: "This module <em>is</em> the partnership. Use the Starter Message below to invite someone. Then run your first 10+10 session. Suggested prompt if you freeze: <em>'Something I have been carrying this week is…'</em>",
+    },
+    groupDiscussion: [
+      "What makes listening so hard for us?",
+      "What did you notice in yourself as the listener? As the talker?",
+      "How could listening partnerships become normal in our community, not weird?",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "'Beginning A Listening Partnership' handout" },
+      { author: "Harvey Jackins", title: "'Fundamentals of Co-Counseling Manual' (Rational Island Publishers) — paraphrased/quoted for educational use" },
+      { author: "James 1:19–20", title: "Scripture (public domain)" },
+    ],
+    extra: `
+<div class="card">
+  <span class="eyebrow">Starter message</span>
+  <h3>Invite your partner</h3>
+  <p>Copy this and send it:</p>
+  <blockquote class="scripture" style="background:#eef5ea; border-left-color:var(--vine-500); color:var(--vine-900);">
+    Hey — I'm walking through a free program called <em>Vines of Life</em>, and one of the core
+    practices is something called a Listening Partnership: we meet for 20 minutes, take 10 minutes
+    each, and take turns being listened to without advice or fixing. Would you be up for trying one
+    with me this week? No prep needed, and there's no pressure to continue — we can try it once and
+    decide.
+  </blockquote>
+</div>
+`,
+  },
+
+  /* ============ MODULE 6 ============ */
+  {
+    id: "m6", num: 6, kind: "module",
+    title: "Discharge — Letting Feelings Move",
+    subtitle: "Laughter, tears, trembling, yawning — the body releasing",
+    scripture: "Likewise the Spirit helps us in our weakness. For we do not know what to pray for as we ought, but the Spirit himself intercedes for us with groanings too deep for words.",
+    scriptureRef: "Romans 8:26",
+    teaching: `
+<p>When a human being is hurt — physically or emotionally — the body has a built-in way to recover.
+Given safety and attention, it will <strong>discharge</strong> the hurt: through tears, through
+shaking, through laughter, through yawning, through sweating, through raging into a pillow.</p>
+
+<p>Small children do this constantly. They cry when they are sad, shake when they are scared, howl
+when they are angry. And then, minutes later, they are back — present, curious, loving. The storm
+passed through and left them whole.</p>
+
+<p>Then, gradually, they were trained out of it. "Don't cry." "You're fine." "Big boys don't…"
+"Stop that, right now." The feelings were not dealt with; they were <em>frozen</em>. They did not go
+away; they went underground. And from underground, they run our lives.</p>
+
+<h3>The Discharge Indication &amp; Sequence Chart</h3>
+<table class="chart" aria-label="Discharge chart">
+  <thead>
+    <tr><th>Painful emotion</th><th>How the body releases it</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Boredom</td><td>Laughter, animated talking, reluctant talking</td></tr>
+    <tr><td>Light anger</td><td>Laughter, warm perspiration</td></tr>
+    <tr><td>Heavy anger</td><td>Angry noises, vigorous movement, warm perspiration</td></tr>
+    <tr><td>Light fear</td><td>Laughter, cold perspiration</td></tr>
+    <tr><td>Heavy fear</td><td>Trembling, shivering, cold perspiration, active kidney</td></tr>
+    <tr><td>Grief</td><td>Tears, sobbing</td></tr>
+    <tr><td>Physical pain &amp; tension</td><td>Yawns, stretching, scratching</td></tr>
+  </tbody>
+</table>
+<div class="attr"><strong>Source:</strong> Adapted from the "Discharge Indication and Sequence Chart" appearing in Vines of Life / IDmP materials and in <em>Fundamentals of Co-Counseling Manual</em>, Harvey Jackins (Rational Island Publishers). Quoted for educational use.</div>
+
+<div class="callout">
+  <h4>Scripture grounds this</h4>
+  <p>"Jesus wept." (John 11:35)  •  "Weep with those who weep." (Romans 12:15)  •  "You have kept
+     count of my tossings; put my tears in your bottle." (Psalm 56:8)  •  "There is a time to weep,
+     and a time to laugh; a time to mourn, and a time to dance." (Ecclesiastes 3:4)</p>
+  <p>Weeping, laughing, trembling, groaning — these are not weakness. They are holy. They are how the
+     body was designed to return to peace.</p>
+</div>
+
+<h3>Why discharge, not suppression</h3>
+<p>You cannot think your way out of frozen feelings. You have to <em>feel</em> them through. A safe
+listener (Module 5) is the conditions under which this happens naturally. Your job as listener is not
+to stop someone from crying — it is to stay warmly present until they are done.</p>
+`,
+    reflect: [
+      "Which of the discharge forms (tears, trembling, laughter, raging, yawning) were you trained <em>out of</em> as a child? By whom?",
+      "When did you last cry in someone's presence and not be shushed or fixed? What did it cost you? What did it give you?",
+      "What emotion do you sense is 'frozen' in you right now, waiting for the right conditions to move?",
+    ],
+    livePractice: {
+      title: "7 Days of Letting It Move",
+      daily: [
+        "Day 1 — Notice when you hold a feeling in today. Sigh or yawn on purpose. See what comes.",
+        "Day 2 — Watch a film or read something that has made you cry before. Let yourself cry. No apology.",
+        "Day 3 — Move your body vigorously for 10 minutes — walk, dance, punch a pillow. Journal what rose.",
+        "Day 4 — Laugh on purpose today. Call a friend who makes you laugh. Notice what unfreezes.",
+        "Day 5 — In your listening partnership this week, permit yourself a real feeling — not a polished one.",
+        "Day 6 — Pray Psalm 56:8 aloud. Tell God where your unshed tears are.",
+        "Day 7 — Write: 'A feeling I let move this week was… and afterward I felt…'",
+      ],
+    },
+    partnership: {
+      prompt: "Your listening session this week: let there be space for tears, laughter, or trembling if they come. The listener's only job is warmth and silence. Prompt: <em>'Something I've been holding in is…'</em>",
+    },
+    groupDiscussion: [
+      "What cultural, gender, or religious messages trained us to suppress which discharges?",
+      "How can our group become a place where it is safe to cry, rage, shake, or laugh too hard?",
+      "When Jesus wept (John 11), what do you think he was discharging?",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "'Love Abundantly / Discharge Indication and Sequence Chart' poster" },
+      { author: "Harvey Jackins", title: "'Fundamentals of Co-Counseling Manual' — discharge theory (Rational Island Publishers). Quoted for educational use with attribution." },
+      { author: "Romans 8:26; Romans 12:15; Psalm 56:8; John 11:35; Ecclesiastes 3:4", title: "Scripture (public domain)" },
+    ],
+  },
+
+  /* ============ MODULE 7 ============ */
+  {
+    id: "m7", num: 7, kind: "module",
+    title: "Self-Regulation & Inspiration",
+    subtitle: "From reaction to response",
+    scripture: "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, self-control; against such things there is no law.",
+    scriptureRef: "Galatians 5:22–23",
+    teaching: `
+<p>Once feelings are moving freely (Module 6), a new kind of agency becomes possible: the ability to
+<em>choose</em> where you act from. The old name for this is <strong>self-control</strong>. A fuller
+name is <strong>self-regulation</strong> — the ability to notice what is driving you and, from love,
+choose differently.</p>
+
+<div class="callout">
+  <h4>Self-Regulation (Self Control over impulsivity)</h4>
+  <ul class="clean">
+    <li>Manage judgments — do not act from the first hot reaction.</li>
+    <li>Pause. Breathe. Locate yourself in the present.</li>
+    <li>Remember who you are (a person who is loved), not only what you feel in this second.</li>
+    <li>Choose the response that is consistent with your deepest values.</li>
+  </ul>
+  <div class="attr"><strong>Source:</strong> Vines of Life / IDmP — "Self-regulation" and "Motivation and Inspiration" handouts.</div>
+</div>
+
+<h3>Two fuels</h3>
+<p>There are two engines that drive human behavior, and they run on very different fuels.</p>
+
+<table class="chart">
+  <thead><tr><th>Positive Motivation</th><th>Negative Motivation</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Peace, Love, Joy, Forgiveness, Gentleness. Free to love and be loving and loved. At one
+          with the moment and the parts.</td>
+      <td>Fear, anger, grief, boredom, guilt. Stress, pain, and separation. Conflict.</td>
+    </tr>
+  </tbody>
+</table>
+<div class="attr"><strong>Source:</strong> Vines of Life / IDmP — "Motivation and Inspiration" handout.</div>
+
+<p>Both engines will move you. The question is: <em>which one did you just start?</em> Most of what
+we regret in life we did from the second column — reacting to fear, anger, or shame. Most of what we
+are proud of we did from the first — moving toward love.</p>
+
+<h3>The fruit is not forced</h3>
+<p>Notice that Galatians 5 calls these "fruit" of the Spirit, not "works" of the Spirit. They grow —
+they are not grunted out. Your job is not to manufacture patience. Your job is to stay connected to
+the vine (Module 1), to let your feelings move (Module 6), and to notice when you are about to act
+from the wrong fuel.</p>
+`,
+    reflect: [
+      "Think of something you did recently that you later regretted. Trace the fuel: was it fear? Anger? Grief? Shame?",
+      "Now think of something you did that you are proud of. What was the fuel there?",
+      "Where in your life right now are you being invited to switch fuels?",
+    ],
+    livePractice: {
+      title: "7 Days of Choosing Your Fuel",
+      daily: [
+        "Day 1 — Three times today, pause before reacting. Ask: 'love or fear?' Write the hardest one.",
+        "Day 2 — Notice one recurring trigger. What is the underlying feeling? Which column is it?",
+        "Day 3 — In one conversation today, respond from love even when part of you wants to react from fear.",
+        "Day 4 — Tell someone about the fruit of the Spirit that is hardest for you. Ask for prayer.",
+        "Day 5 — When you get hooked today (you will), come back gently. No self-shame.",
+        "Day 6 — Do one costly act of gentleness today, especially toward someone who didn't earn it.",
+        "Day 7 — Write: 'This week I caught myself about to act from fear, and I chose love when I…'",
+      ],
+    },
+    partnership: {
+      prompt: "Ten minutes each. Prompt: <em>'A pattern of reaction I am ready to let go of is…'</em>",
+    },
+    groupDiscussion: [
+      "Where is our group being driven by fear right now? By love?",
+      "Which fruit of the Spirit is hardest for you personally? Which is easiest?",
+      "How can we hold each other accountable to act from love without becoming preachy or shaming?",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "'Self-regulation' handout" },
+      { author: "Vines of Life / IDmP", title: "'Motivation and Inspiration' handout" },
+      { author: "Galatians 5:22–23", title: "Scripture (public domain)" },
+    ],
+  },
+
+  /* ============ MODULE 8 ============ */
+  {
+    id: "m8", num: 8, kind: "module",
+    title: "Connectivity — Empathy & Forgiveness",
+    subtitle: "We are connected by love to all things",
+    scripture: "And above all these put on love, which binds everything together in perfect harmony.",
+    scriptureRef: "Colossians 3:14",
+    teaching: `
+<p>Self-awareness (Module 2) opens the door inward. <em>Connectivity</em> opens the door outward.</p>
+
+<div class="callout">
+  <h4>Connectivity — Empathy / Forgiveness</h4>
+  <ul class="clean">
+    <li><strong>No one is guilty.</strong></li>
+    <li>We all do things that are thoughtless and hurtful.</li>
+    <li>We are <em>not</em> our behavior.</li>
+    <li>We are <em>not</em> our thoughts or feelings.</li>
+    <li>We are <em>not</em> our judgments.</li>
+    <li>We are connected by love to all things.</li>
+    <li><strong>AWAKEN.</strong></li>
+  </ul>
+  <div class="attr"><strong>Source:</strong> Vines of Life / IDmP — "Connectivity" handout.</div>
+</div>
+
+<h3>"No one is guilty" — a hard teaching</h3>
+<p>This is not a denial of harm. People have hurt you, and you have hurt others. <em>That did happen.</em>
+The teaching is this: the person who hurt you was operating out of their own wound. They were not,
+at their core, a bad person doing bad things on purpose. They were a hurt person acting out of pain
+they never got to feel, never got to discharge, never got to heal.</p>
+
+<p>This does not excuse what was done. It does not mean you go back. It does not mean you trust
+someone who has not changed. It means: the person who hurt you is not, in the end, a different
+<em>kind</em> of being than you are. They, too, are loved. They, too, are hurt. Forgiveness is the
+letting-go of the demand that their hurt keep running your life.</p>
+
+<blockquote class="scripture">
+  "Father, forgive them; for they know not what they do."<br>
+  <cite>— Luke 23:34</cite>
+</blockquote>
+
+<h3>The three-fold practice of forgiveness</h3>
+<ol class="clean">
+  <li><strong>Feel the hurt fully.</strong> No bypassing. (Modules 2 and 6 prepared you for this.)</li>
+  <li><strong>See the hurt person inside the hurt behavior.</strong> Not to excuse. To see clearly.</li>
+  <li><strong>Release the debt.</strong> You are no longer their creditor. You are free.</li>
+</ol>
+`,
+    reflect: [
+      "Who is hardest for you to see as 'a hurt person, not a bad person' right now?",
+      "What would it cost you to release the debt? What might it free up in you?",
+      "Where do you need to receive forgiveness from yourself or another? What is stopping you?",
+    ],
+    livePractice: {
+      title: "7 Days of Letting Go",
+      daily: [
+        "Day 1 — Name one person you are still holding a grudge against. Write it here (privately).",
+        "Day 2 — Sit with the hurt they caused. Let it be real. Do not jump to forgiveness.",
+        "Day 3 — Ask (in prayer or journal): 'What happened to this person that shaped them into who hurt me?' You don't have to know — just ask.",
+        "Day 4 — Do a small kindness today for someone unrelated. Notice what it loosens in you.",
+        "Day 5 — If it is safe and wise, consider whether there is any gesture toward reconciliation. If not, that is okay; release is internal work.",
+        "Day 6 — Pray Luke 23:34 for the person. Not for their benefit — for yours.",
+        "Day 7 — Write: 'I am beginning to release the debt of _____. What I want to do with that freed-up space is…'",
+      ],
+    },
+    partnership: {
+      prompt: "Ten minutes each. Prompt: <em>'A person I am still carrying a weight about is… What I want to lay down is…'</em> The listener does not pressure toward forgiveness — only listens.",
+    },
+    groupDiscussion: [
+      "How is 'no one is guilty' different from 'what they did doesn't matter'?",
+      "Where has forgiveness set someone in our group or community free?",
+      "How do we hold people accountable <em>and</em> hold them in love at the same time?",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "'Connectivity / Empathy / Forgiveness' handout" },
+      { author: "Colossians 3:14; Luke 23:34", title: "Scripture (public domain)" },
+    ],
+  },
+
+  /* ============ MODULE 9 ============ */
+  {
+    id: "m9", num: 9, kind: "module",
+    title: "Social Skill & Community",
+    subtitle: "Bonds that work as a team",
+    scripture: "And let us consider how to stir up one another to love and good works, not neglecting to meet together, as is the habit of some, but encouraging one another, and all the more as you see the Day drawing near.",
+    scriptureRef: "Hebrews 10:24–25",
+    teaching: `
+<p>We were not made to heal alone, and we were not made to live alone. Once the inner work begins —
+self-awareness, listening, discharge, regulation, forgiveness — it naturally spills outward into the
+way we live with other people.</p>
+
+<div class="callout">
+  <h4>Social Skill Creates Social Support</h4>
+  <ul class="clean">
+    <li>Creating <strong>bonds</strong> to work as a team.</li>
+    <li>Flows with and affect empathy.</li>
+    <li>Supportiveness — shares of an enriched life.</li>
+    <li>Goodness. We are meant for each other.</li>
+  </ul>
+  <div class="attr"><strong>Source:</strong> Vines of Life / IDmP — "Social Skill" handout.</div>
+</div>
+
+<h3>The four circles</h3>
+<p>A healthy life grows outward in rings:</p>
+<ol class="clean">
+  <li><strong>Self.</strong> You, loved. You, known. You, unafraid.</li>
+  <li><strong>One other.</strong> A listening partner. A spouse. A best friend. One person who sees you.</li>
+  <li><strong>A small group.</strong> 3–12 people who practice this with you. A church small group. A
+      listening partnership triad. A recovery circle.</li>
+  <li><strong>Community &amp; world.</strong> The neighborhood, the church, the workplace, the city, the
+      nations.</li>
+</ol>
+
+<p>If you try to skip a ring, the next one will collapse under its own weight. If you try to heal the
+world without a small group, you will burn out. If you try to have a small group without one other,
+you will be hiding. If you try to have one other without doing your own inner work, you will
+entangle. Work the rings in order.</p>
+
+<h3>From listening partnership to community of practice</h3>
+<p>A single listening partnership (Module 5) can become a triad, then a four, then a small group. As
+you gather, agree on the basics: confidentiality, equal time, no advice, permit discharge, meet
+consistently. That is the skeleton. Love is the muscle.</p>
+`,
+    reflect: [
+      "Which ring is weakest for you right now — self, one other, small group, or community?",
+      "What would one honest step toward the next ring look like this month?",
+      "Who in your life, if you asked, might say yes to building something with you?",
+    ],
+    livePractice: {
+      title: "7 Days of Building Rings",
+      daily: [
+        "Day 1 — List your 'one others' by name. How many? How recent was each real conversation?",
+        "Day 2 — Reach out to one person you have let drift. No agenda. Just warmth.",
+        "Day 3 — Attend or host one real gathering this week. Small is fine.",
+        "Day 4 — Notice someone in your community who is lonely. Do one specific kind thing.",
+        "Day 5 — Ask your listening partner: 'Could we make this monthly?' Or propose a triad.",
+        "Day 6 — Identify one structural injustice in your neighborhood. Pray about your part.",
+        "Day 7 — Write: 'The ring I want to strengthen this season is… The first step is…'",
+      ],
+    },
+    partnership: {
+      prompt: "Ten minutes each. Prompt: <em>'A kind of community I long for but don't yet have is…'</em>",
+    },
+    groupDiscussion: [
+      "What is our group's shared commitment — beyond just meeting?",
+      "What structures would make it easier for listening partnerships to spread in our church / neighborhood?",
+      "Who is missing from our table, and what would it take to welcome them?",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "'Social Skill Creates Social Support' handout" },
+      { author: "Vines of Life / IDmP", title: "'Connectivity' handout" },
+      { author: "Hebrews 10:24–25", title: "Scripture (public domain)" },
+    ],
+  },
+
+  /* ============ MODULE 10 ============ */
+  {
+    id: "m10", num: 10, kind: "module",
+    title: "My Goals for 20 Years",
+    subtitle: "Personal, family, community, nation, world",
+    scripture: "Write the vision; make it plain on tablets, so he may run who reads it. For still the vision awaits its appointed time; it hastens to the end — it will not lie. If it seems slow, wait for it; it will surely come.",
+    scriptureRef: "Habakkuk 2:2–3",
+    teaching: `
+<p>You have done the inner work. You have learned to feel, to listen, to release, to choose, to
+forgive, to belong. Now comes the question that gives a life its shape:</p>
+
+<p class="eyebrow" style="font-size:1rem;">What will you do with the next twenty years?</p>
+
+<p>Not "what will you <em>achieve</em>?" but: who will you become, and who around you will be better
+because of the way you walked?</p>
+
+<h3>The five-ring vision</h3>
+<p>Write a short, specific vision for each ring. Don't be modest; don't be grandiose. Be honest about
+what love in you wants to become.</p>
+
+<ul class="clean">
+  <li><strong>Personal.</strong> Who do you want to have become in 20 years? What will be true of your
+      body, your mind, your heart, your soul?</li>
+  <li><strong>Family.</strong> What will your closest relationships look like? What will your children
+      or the young people in your life remember about you?</li>
+  <li><strong>Community.</strong> Your neighborhood, your church, your workplace — what will be
+      different because you were there?</li>
+  <li><strong>Country / Nation.</strong> Where will your voice and your vote have pushed? What
+      injustice will be less entrenched?</li>
+  <li><strong>World.</strong> Who will you have loved that the world tends not to love? What will you
+      have given that was not required of you?</li>
+</ul>
+
+<div class="callout">
+  <h4>From the IDmP exercise "My Goals for 20 Years"</h4>
+  <p>Write the vision plainly. Read it often. Revise it as Love teaches you more. A vision held lightly
+  will still shape a life; a vision unnamed will be shaped by fear.</p>
+  <div class="attr"><strong>Source:</strong> Vines of Life / IDmP — "My Goals for 20 Years" exercise.</div>
+</div>
+`,
+    reflect: [
+      "Write your 20-year personal vision in 3–5 sentences.",
+      "Write your 20-year family vision.",
+      "Write your 20-year community vision.",
+      "Write your 20-year country / nation vision.",
+      "Write your 20-year world vision. (One concrete place your life will touch lives you may never meet.)",
+    ],
+    livePractice: {
+      title: "7 Days of Writing the Vision",
+      daily: [
+        "Day 1 — Write your personal vision. Rough draft. Don't edit.",
+        "Day 2 — Write your family vision.",
+        "Day 3 — Write your community vision.",
+        "Day 4 — Write your country / nation vision.",
+        "Day 5 — Write your world vision.",
+        "Day 6 — Read all five aloud to yourself. Revise one sentence that felt untrue.",
+        "Day 7 — Read all five aloud to your listening partner or group. Ask for their blessing.",
+      ],
+    },
+    partnership: {
+      prompt: "Twenty minutes each. Read your five-ring vision aloud to your partner. The listener's only response: 'I see you. I believe it. I bless it.'",
+    },
+    groupDiscussion: [
+      "Where do our visions overlap? Where could we work together?",
+      "Who in our group needs help getting unstuck to even imagine a vision?",
+      "What specific practice, habit, or gathering will we commit to — starting next week — to move these visions forward?",
+    ],
+    sources: [
+      { author: "Vines of Life / IDmP", title: "'My Goals for 20 Years' exercise" },
+      { author: "Habakkuk 2:2–3", title: "Scripture (public domain)" },
+    ],
+  },
+
+  /* ============ COMMISSIONING ============ */
+  {
+    id: "sending", num: 11, kind: "outro",
+    title: "Commissioning — Go & Live",
+    subtitle: "This is not a course you finish. It is a life you begin.",
+    scripture: "Now may the God of peace who brought again from the dead our Lord Jesus … equip you with everything good that you may do his will, working in us that which is pleasing in his sight, through Jesus Christ, to whom be glory forever and ever. Amen.",
+    scriptureRef: "Hebrews 13:20–21",
+    teaching: `
+<p>You have walked through ten modules. You have named what you feel, looked honestly at what hurts,
+learned to listen, let feelings move, chosen your fuel, released a debt, found your ring of people,
+and written a vision for twenty years.</p>
+
+<p>Now the program ends. The life begins.</p>
+
+<h3>Three commitments to carry forward</h3>
+<ol class="clean">
+  <li><strong>Keep a listening partnership.</strong> Once a week, or twice a month, for the rest of
+      your life. This single practice, more than anything else, keeps a person from drifting.</li>
+  <li><strong>Keep a rhythm of abiding.</strong> A few minutes of silence each day, receiving love
+      before you try to give any. Without this, the whole thing calcifies into another self-help
+      project.</li>
+  <li><strong>Keep passing it on.</strong> Once every year, invite one new person into this
+      material. Walk through a module with them. That is how a vine grows — branch by branch.</li>
+</ol>
+
+<h3>A blessing for the road</h3>
+<blockquote class="scripture">
+  May you abide in the love that made you.<br>
+  May you feel what is yours to feel.<br>
+  May you be listened to without being fixed.<br>
+  May you release what is no longer yours to carry.<br>
+  May you forgive, at the pace of grace.<br>
+  May you be found in a people.<br>
+  May your twenty years bear much fruit.<br>
+  And may the peace of God, which surpasses understanding, guard your heart and your mind.
+  <cite>— In the name of Love, which is the root. Amen.</cite>
+</blockquote>
+`,
+    reflect: [
+      "Write your own one-sentence commissioning — what you are sending yourself out to do.",
+      "Who will you tell about this program this month?",
+      "What will you do six months from now to check back in with yourself?",
+    ],
+    noPractice: true,
+    actions: [
+      { label: "View my commitments", href: "#/journal", primary: true },
+      { label: "See all sources", href: "#/resources", primary: false },
+    ],
+    sources: [
+      { author: "Hebrews 13:20–21; Philippians 4:7", title: "Scripture (public domain)" },
+    ],
+  },
+];
+
+/* ------------- Feelings for Module 2 ------------- */
+const FEELINGS = [
+  "Peaceful","Aware","Curious","Hopeful","Grateful","Joyful","Playful","Content",
+  "Loved","Loving","Open","Tender","Quiet","Centered","Brave","Alive",
+  "Tired","Bored","Restless","Numb","Flat","Disconnected","Heavy","Stuck",
+  "Anxious","Afraid","Worried","Tense","Overwhelmed","On-edge","Rushed","Fragile",
+  "Sad","Grieving","Lonely","Longing","Disappointed","Hurt","Abandoned","Forgotten",
+  "Angry","Resentful","Irritated","Frustrated","Indignant","Enraged","Impatient","Defensive",
+  "Guilty","Ashamed","Embarrassed","Small","Unseen","Unwanted","Rejected","Not-enough",
+  "Excited","Eager","Energized","Inspired","Motivated","Confident","Focused","Creative",
+  "Calm","Settled","Restored","Rested","Held","Safe","Accepted","Enough",
+  "Confused","Uncertain","Doubtful","Conflicted","Torn","Blank","Scattered","Foggy",
+];
+
+/* ------------- Rendering ------------- */
+const $ = (sel, el=document) => el.querySelector(sel);
+const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+function escapeHtml(s) {
+  return (s||"").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+function moduleById(id) { return MODULES.find(m => m.id === id); }
+function moduleByNum(n) { return MODULES.find(m => m.kind === "module" && m.num === n); }
+
+function renderSidebar() {
+  const nav = $("#modnav");
+  const parts = [];
+  parts.push(`<a href="#/welcome" data-id="welcome"><span class="num"><span class="n">•</span></span> Welcome</a>`);
+  parts.push(`<hr>`);
+  MODULES.filter(m => m.kind === "module").forEach(m => {
+    const done = state.progress[m.id] && state.progress[m.id].complete ? "done" : "";
+    parts.push(`<a href="#/module/${m.num}" data-id="${m.id}" class="${done}">
+      <span class="num"><span class="n">${m.num}</span></span>
+      <span class="ttl">${escapeHtml(m.title)}</span>
+    </a>`);
+  });
+  parts.push(`<hr>`);
+  parts.push(`<a href="#/sending" data-id="sending">✦ Commissioning</a>`);
+  parts.push(`<a class="meta" href="#/journal">My Journal</a>`);
+  parts.push(`<a class="meta" href="#/resources">Sources &amp; Attribution</a>`);
+  parts.push(`<a class="meta" href="#/settings">Settings &amp; Export</a>`);
+  nav.innerHTML = parts.join("\n");
+}
+
+function highlightNav() {
+  const hash = location.hash || "#/welcome";
+  $$("#modnav a").forEach(a => a.classList.remove("active"));
+  let id = null;
+  if (hash.startsWith("#/module/")) {
+    const n = parseInt(hash.split("/")[2], 10);
+    const m = moduleByNum(n); if (m) id = m.id;
+  } else if (hash === "#/welcome" || hash === "" || hash === "#") id = "welcome";
+  else if (hash === "#/sending") id = "sending";
+  if (id) {
+    const el = $(`#modnav a[data-id="${id}"]`);
+    if (el) el.classList.add("active");
+  }
+}
+
+function computeProgress() {
+  const mods = MODULES.filter(m => m.kind === "module");
+  const done = mods.filter(m => state.progress[m.id] && state.progress[m.id].complete).length;
+  return { done, total: mods.length, pct: Math.round(100*done/mods.length) };
+}
+function renderProgressBar() {
+  const { done, total, pct } = computeProgress();
+  $("#progress-pct").textContent = `${done}/${total}`;
+  $("#progress-bar").style.width = `${pct}%`;
+}
+
+function renderMode() {
+  document.body.classList.toggle("mode-group",       state.mode === "group");
+  document.body.classList.toggle("mode-individual",  state.mode === "individual");
+  $("#btn-mode-individual").setAttribute("aria-pressed", state.mode === "individual");
+  $("#btn-mode-group").setAttribute("aria-pressed",      state.mode === "group");
+}
+
+/* ---- Views ---- */
+function viewWelcome() {
+  const m = moduleById("welcome");
+  return `
+    <section class="hero">
+      <span class="eyebrow" style="color:var(--vine-300)">A free program · Christian-rooted · Welcoming to all</span>
+      <h1>${escapeHtml(m.title)}</h1>
+      <p>Ten modules of inner work, emotional healing, and listening partnership — rooted in love,
+         open to anyone. Walk through alone or with a partner or group. Your journal stays on your
+         device, private to you.</p>
+      <div class="actions">
+        <a class="btn" href="#/module/1">Begin Module 1 →</a>
+        <a class="btn ghost" href="#/resources">Sources &amp; Attribution</a>
+      </div>
+    </section>
+
+    <div class="card">
+      <span class="eyebrow">How it works</span>
+      <h2>${escapeHtml(m.subtitle)}</h2>
+      <blockquote class="scripture">${escapeHtml(m.scripture)}<cite>— ${escapeHtml(m.scriptureRef)}</cite></blockquote>
+      ${m.teaching}
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">First step</span>
+      <h3>Pick your mode</h3>
+      <p>Top-left of this page. You can change it anytime.</p>
+      <div class="actions">
+        <a class="btn" href="#/module/1">Begin Module 1 →</a>
+        <a class="btn ghost" href="#/journal">Preview the Journal</a>
+      </div>
+    </div>
+  `;
+}
+
+function viewModule(num) {
+  const m = moduleByNum(num);
+  if (!m) return `<div class="card"><h2>Module not found</h2></div>`;
+  return renderFullModule(m);
+}
+
+function viewSending() {
+  const m = moduleById("sending");
+  return renderFullModule(m);
+}
+
+function renderFullModule(m) {
+  const p = progressFor(m.id);
+  const prevNum = m.kind === "module" ? m.num - 1 : 10;
+  const nextNum = m.kind === "module" ? m.num + 1 : 0;
+  const prevHref = m.kind === "module"
+    ? (prevNum === 0 ? "#/welcome" : `#/module/${prevNum}`)
+    : (m.id === "sending" ? `#/module/10` : "#/welcome");
+  const nextHref = m.kind === "module"
+    ? (nextNum > 10 ? "#/sending" : `#/module/${nextNum}`)
+    : "#/journal";
+  const nextLabel = m.kind === "module"
+    ? (nextNum > 10 ? "Commissioning →" : `Module ${nextNum} →`)
+    : "My Journal →";
+
+  const isModule = m.kind === "module";
+
+  return `
+    <article>
+      <span class="eyebrow">${isModule ? `Module ${m.num}` : (m.kind === "outro" ? "Commissioning" : "Welcome")}</span>
+      <h1>${escapeHtml(m.title)}</h1>
+      <p style="font-size:1.05rem;color:var(--ink-soft);margin-top:-.4em;">${escapeHtml(m.subtitle)}</p>
+
+      <div class="card">
+        <blockquote class="scripture">${escapeHtml(m.scripture)}<cite>— ${escapeHtml(m.scriptureRef)}</cite></blockquote>
+        <span class="eyebrow">Teaching</span>
+        ${m.teaching}
+      </div>
+
+      ${m.extra ? m.extra : ""}
+
+      ${!m.noPractice && m.reflect && m.reflect.length ? `
+        <div class="card">
+          <span class="eyebrow">Reflection journal</span>
+          <h3>Sit with these — write honestly</h3>
+          <p style="color:var(--ink-soft);font-size:.92rem">Your answers are saved privately in your browser. Nothing is sent anywhere.</p>
+          ${m.reflect.map((q,i) => `
+            <label class="field">
+              <span class="label">${i+1}. ${q}</span>
+              <textarea data-journal="${m.id}:${i}">${escapeHtml((p.journal_multi && p.journal_multi[i]) || "")}</textarea>
+            </label>
+          `).join("")}
+        </div>
+      ` : ""}
+
+      ${!m.noPractice && m.livePractice ? `
+        <div class="card">
+          <span class="eyebrow">Live it</span>
+          <h3>${escapeHtml(m.livePractice.title)}</h3>
+          <p style="color:var(--ink-soft);font-size:.92rem">Tap each day as you complete it. You can add notes.</p>
+          <div class="days">
+            ${m.livePractice.daily.map((_,i) => `
+              <div class="day ${p.days[i] ? "checked" : ""}" data-day="${m.id}:${i}" role="checkbox" aria-checked="${p.days[i]}" tabindex="0">
+                <span class="num">${i+1}</span>${p.days[i] ? "Done" : "Open"}
+              </div>
+            `).join("")}
+          </div>
+          ${m.livePractice.daily.map((text,i) => `
+            <details class="day-note" ${p.days[i] ? "open" : ""}>
+              <summary>Day ${i+1}</summary>
+              <p style="font-size:.95rem;margin:.2rem 0 .5rem">${text}</p>
+              <textarea data-note="${m.id}:${i}" placeholder="What happened today?">${escapeHtml(p.notes["d"+(i+1)] || "")}</textarea>
+            </details>
+          `).join("")}
+        </div>
+      ` : ""}
+
+      ${!m.noPractice && m.partnership ? `
+        <div class="card">
+          <span class="eyebrow">Listening partnership</span>
+          <h3>Practice with another person</h3>
+          <p>${m.partnership.prompt}</p>
+          <div data-mode="group-only">
+            <h4>Session notes</h4>
+            <label class="field">
+              <span class="label">After your session, jot one thing you noticed (about yourself — not your partner):</span>
+              <textarea data-partnership="${m.id}">${escapeHtml(p.partnership || "")}</textarea>
+            </label>
+          </div>
+          <div data-mode="individual-only">
+            <p style="font-size:.9rem;color:var(--ink-soft)">
+              You're in individual mode. Switch to <strong>Group / Partner</strong> in the left sidebar to see partnership session notes.
+            </p>
+          </div>
+        </div>
+      ` : ""}
+
+      ${!m.noPractice && m.groupDiscussion ? `
+        <div class="card" data-mode="group-only">
+          <span class="eyebrow">Group discussion</span>
+          <h3>For small groups — three or more</h3>
+          <ol class="clean">
+            ${m.groupDiscussion.map(q => `<li>${q}</li>`).join("")}
+          </ol>
+        </div>
+      ` : ""}
+
+      ${isModule ? `
+        <div class="card">
+          <span class="eyebrow">Commitment</span>
+          <h3>Carry one sentence forward</h3>
+          <p>Write one sentence — the thing you will practice from this module long after it's done.</p>
+          <label class="field">
+            <span class="label">My commitment:</span>
+            <textarea data-commit="${m.id}" placeholder="As a result of this module, I will…">${escapeHtml(p.commitment || "")}</textarea>
+          </label>
+          <div class="commit-card" aria-live="polite" id="commit-preview-${m.id}">
+            ${p.commitment ? `<strong>My commitment (Module ${m.num}):</strong><br>${escapeHtml(p.commitment)}` : `<em>Your commitment will appear here.</em>`}
+          </div>
+          <div class="actions">
+            <button type="button" class="btn" data-complete="${m.id}">
+              ${p.complete ? "✓ Marked complete — unmark?" : "Mark module complete"}
+            </button>
+            <button type="button" class="btn ghost sm" onclick="window.print()">Print this module</button>
+          </div>
+        </div>
+      ` : `
+        <div class="actions">
+          ${(m.actions || []).map(a => `<a class="btn ${a.primary ? "" : "ghost"}" href="${a.href}">${a.label}</a>`).join("")}
+        </div>
+      `}
+
+      ${m.sources ? `
+        <div class="card">
+          <span class="eyebrow">Sources used in this module</span>
+          <ul class="clean" style="font-size:.92rem;color:var(--ink-soft)">
+            ${m.sources.map(s => `<li><strong>${escapeHtml(s.author)}</strong> — ${escapeHtml(s.title)}${s.note ? `. ${escapeHtml(s.note)}` : ""}</li>`).join("")}
+          </ul>
+          <p class="attr">See the full <a href="#/resources">Sources &amp; Attribution</a> page for publisher information and recommended reading.</p>
+        </div>
+      ` : ""}
+
+      <nav class="modpage" aria-label="Module navigation">
+        <a class="btn ghost" href="${prevHref}">← Back</a>
+        <a class="btn" href="${nextHref}">${nextLabel}</a>
+      </nav>
+    </article>
+  `;
+}
+
+function viewJournal() {
+  const mods = MODULES.filter(m => m.kind === "module");
+  const items = mods.map(m => {
+    const p = state.progress[m.id];
+    if (!p) return null;
+    const hasAny = p.commitment || (p.journal_multi && p.journal_multi.some(x=>x)) ||
+                   Object.values(p.notes||{}).some(x=>x) || p.complete || p.days.some(d=>d);
+    if (!hasAny) return null;
+    return `
+      <div class="card">
+        <span class="eyebrow">Module ${m.num}${p.complete ? " · complete" : ""}</span>
+        <h3><a href="#/module/${m.num}">${escapeHtml(m.title)}</a></h3>
+        ${p.commitment ? `<div class="commit-card"><strong>Commitment:</strong><br>${escapeHtml(p.commitment)}</div>` : ""}
+        ${p.journal_multi && p.journal_multi.some(x=>x) ? `
+          <h4 style="margin-top:1rem">Reflections</h4>
+          <ul class="clean">${p.journal_multi.map((t,i) => t ? `<li><em>Q${i+1}:</em> ${escapeHtml(t)}</li>` : "").join("")}</ul>
+        ` : ""}
+        ${Object.values(p.notes||{}).some(x=>x) ? `
+          <h4 style="margin-top:1rem">Practice notes</h4>
+          <ul class="clean">${Object.entries(p.notes).map(([k,v]) => v ? `<li><em>${k.replace("d","Day ")}:</em> ${escapeHtml(v)}</li>` : "").join("")}</ul>
+        ` : ""}
+      </div>`;
+  }).filter(Boolean).join("");
+
+  return `
+    <h1>My Journal</h1>
+    <p style="color:var(--ink-soft)">Everything you've written, gathered in one place. Private to this browser on this device.
+       <a href="#/settings">Export or print</a> if you'd like a copy elsewhere.</p>
+    ${items || `<div class="card"><p>You haven't written anything yet. Start a module and your reflections will appear here.</p><a class="btn" href="#/module/1">Begin Module 1 →</a></div>`}
+  `;
+}
+
+function viewResources() {
+  return `
+    <h1>Sources &amp; Attribution</h1>
+    <p style="color:var(--ink-soft)">Vines of Life — Come &amp; Abide is offered free of charge.
+    The teaching draws on three distinct streams, credited below.</p>
+
+    <div class="card">
+      <h2>1. Vines of Life / IDmP (Interactive Discipline management Platform)</h2>
+      <p>The spine of this program — the framework, the diagrams, the listening-partnership
+      structure, the feelings-awareness approach, and the five-ring vision exercise — is drawn from
+      Vines of Life's own IDmP materials. This is original Vines of Life material used here with its
+      authors' permission, as part of the public, free-to-distribute program.</p>
+      <p><strong>Key source handouts referenced:</strong></p>
+      <ul class="clean">
+        <li>"Love Abundantly / Discharge Indication and Sequence Chart" poster</li>
+        <li>"Beginning A Listening Partnership"</li>
+        <li>"Are You AWARE of How You Are Feeling Now?" (feelings chart)</li>
+        <li>"The Pathology of Dis-functionality"</li>
+        <li>"What Is Internalized Oppression?"</li>
+        <li>"The New Frontier In Human Development — Emotional Competency I.D.m.P."</li>
+        <li>"The Three Domains of Learning"</li>
+        <li>"Learning is the Door and Love is the Key"</li>
+        <li>"Self-regulation (Self Control over impulsivity)"</li>
+        <li>"Motivation and Inspiration (Positive / Negative)"</li>
+        <li>"Self-Awareness (Know thy self)"</li>
+        <li>"Connectivity / Empathy / Forgiveness"</li>
+        <li>"Social Skill Creates Social Support"</li>
+        <li>"My Goals for 20 Years"</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>2. Re-evaluation Counseling / Co-Counseling</h2>
+      <p>Several foundational ideas — the theory of emotional <em>discharge</em>, the practice of
+      <em>listening partnership</em> (sometimes called co-counseling), "permit and encourage
+      discharge," "no socializing," the Discharge Indication &amp; Sequence Chart, and related concepts
+      — originate with <strong>Harvey Jackins</strong> and are documented in
+      <em>Fundamentals of Co-Counseling Manual</em> and other publications from
+      <strong>Rational Island Publishers</strong>.</p>
+      <p>Those works are referenced and briefly quoted here for educational use, with attribution.
+      For the full manual and the broader Re-evaluation Counseling tradition, please see the
+      authorized publications from Rational Island Publishers directly.</p>
+      <p><em>Vines of Life is not affiliated with Re-evaluation Counseling Communities. The framing,
+      Christian grounding, and program structure here are distinct.</em></p>
+    </div>
+
+    <div class="card">
+      <h2>3. Scripture</h2>
+      <p>Scripture quotations are drawn from public-domain English translations, primarily the
+      <strong>King James Version (KJV)</strong> and the <strong>World English Bible (WEB)</strong>,
+      with occasional reference to the <strong>ESV</strong> in paraphrase. Verses referenced include:
+      John 15; 1 John 4; Psalm 139; Romans 12; Isaiah 53; Luke 4; James 1; Romans 8; Psalm 56;
+      Ecclesiastes 3; John 11; Romans 12; Galatians 5; Colossians 3; Luke 23; Hebrews 10;
+      Habakkuk 2; Hebrews 13; Philippians 4.</p>
+    </div>
+
+    <div class="card">
+      <h2>Recommended further reading</h2>
+      <ul class="clean">
+        <li>Harvey Jackins — <em>The Human Side of Human Beings: The Theory of Re-evaluation
+            Counseling</em> (Rational Island Publishers)</li>
+        <li>Parker Palmer — <em>A Hidden Wholeness</em> (Jossey-Bass) — on Circles of Trust and deep
+            listening</li>
+        <li>Henri Nouwen — <em>The Return of the Prodigal Son</em> and <em>Life of the Beloved</em></li>
+        <li>Edwin Friedman — <em>A Failure of Nerve</em> — on self-differentiation</li>
+        <li>Maya Angelou — <em>And Still I Rise</em> (Random House) — full poem referenced in Module 4</li>
+        <li>bell hooks — <em>All About Love: New Visions</em></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>License &amp; use</h2>
+      <p>This Vines of Life — Come &amp; Abide website may be shared, copied, and redistributed for
+      non-commercial use, with attribution to Vines of Life and with the sources above left intact.
+      Third-party material quoted here remains the property of its respective rights holders and is
+      used for educational purposes with attribution. If you are a rights holder and would like
+      material revised or removed, please contact Vines of Life.</p>
+    </div>
+
+    <div class="actions">
+      <a class="btn" href="#/welcome">Back to Welcome</a>
+      <a class="btn ghost" href="#/module/1">Begin Module 1 →</a>
+    </div>
+  `;
+}
+
+function viewSettings() {
+  return `
+    <h1>Settings &amp; Export</h1>
+    <div class="card">
+      <h3>Your data is private</h3>
+      <p>Everything you write in Vines of Life — reflections, practice notes, commitments, and progress
+      — is stored in this browser only, under the key <code>${STATE_KEY}</code>. Nothing is sent to
+      any server. If you clear your browser data, your journal is erased.</p>
+    </div>
+
+    <div class="card">
+      <h3>Export a backup</h3>
+      <p>Download a JSON file of your journal. You can save it, email it to yourself, or restore it
+      later (e.g., on a new device or browser).</p>
+      <div class="actions">
+        <button type="button" class="btn" id="btn-export">Download my journal (JSON)</button>
+        <button type="button" class="btn ghost" id="btn-print">Print my journal</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Restore from backup</h3>
+      <p>Load a previously exported JSON file. This will overwrite anything currently in this browser.</p>
+      <input type="file" id="file-import" accept="application/json">
+    </div>
+
+    <div class="card">
+      <h3>Start over</h3>
+      <p>Erase all progress and journal entries from this browser. This cannot be undone.</p>
+      <div class="actions">
+        <button type="button" class="btn" id="btn-reset" style="background:var(--berry);border-color:var(--berry)">Erase everything</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ------------- Router ------------- */
+function route() {
+  const hash = location.hash || "#/welcome";
+  let html;
+  if (hash === "#/welcome" || hash === "" || hash === "#") html = viewWelcome();
+  else if (hash.startsWith("#/module/")) {
+    const n = parseInt(hash.split("/")[2], 10);
+    html = viewModule(n);
+  } else if (hash === "#/sending")   html = viewSending();
+  else if (hash === "#/journal")     html = viewJournal();
+  else if (hash === "#/resources")   html = viewResources();
+  else if (hash === "#/settings")    html = viewSettings();
+  else                               html = viewWelcome();
+
+  const content = $("#content");
+  content.innerHTML = html;
+  content.focus({ preventScroll: false });
+  window.scrollTo({ top: 0, behavior: "instant" });
+
+  highlightNav();
+  renderProgressBar();
+  attachHandlers();
+  if (hash.startsWith("#/module/2")) renderFeelingsPicker();
+}
+
+function attachHandlers() {
+  // Journal textareas
+  $$("textarea[data-journal]").forEach(t => {
+    t.addEventListener("input", () => {
+      const [mid, idx] = t.getAttribute("data-journal").split(":");
+      const p = progressFor(mid);
+      if (!p.journal_multi) p.journal_multi = [];
+      p.journal_multi[parseInt(idx,10)] = t.value;
+      saveState();
+    });
+  });
+  // Day notes
+  $$("textarea[data-note]").forEach(t => {
+    t.addEventListener("input", () => {
+      const [mid, idx] = t.getAttribute("data-note").split(":");
+      const p = progressFor(mid);
+      p.notes["d" + (parseInt(idx,10)+1)] = t.value;
+      saveState();
+    });
+  });
+  // Day checkboxes
+  $$(".days .day").forEach(d => {
+    const toggle = () => {
+      const [mid, idx] = d.getAttribute("data-day").split(":");
+      const p = progressFor(mid);
+      p.days[parseInt(idx,10)] = !p.days[parseInt(idx,10)];
+      saveState();
+      route(); // re-render
+    };
+    d.addEventListener("click", toggle);
+    d.addEventListener("keydown", e => {
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle(); }
+    });
+  });
+  // Partnership notes
+  $$("textarea[data-partnership]").forEach(t => {
+    t.addEventListener("input", () => {
+      const mid = t.getAttribute("data-partnership");
+      const p = progressFor(mid);
+      p.partnership = t.value;
+      saveState();
+    });
+  });
+  // Commitment
+  $$("textarea[data-commit]").forEach(t => {
+    t.addEventListener("input", () => {
+      const mid = t.getAttribute("data-commit");
+      const p = progressFor(mid);
+      p.commitment = t.value;
+      const preview = $(`#commit-preview-${mid}`);
+      if (preview) {
+        if (t.value) {
+          const m = moduleById(mid);
+          preview.innerHTML = `<strong>My commitment (Module ${m.num}):</strong><br>${escapeHtml(t.value)}`;
+        } else {
+          preview.innerHTML = `<em>Your commitment will appear here.</em>`;
+        }
+      }
+      saveState();
+    });
+  });
+  // Mark complete
+  $$("button[data-complete]").forEach(b => {
+    b.addEventListener("click", () => {
+      const mid = b.getAttribute("data-complete");
+      const p = progressFor(mid);
+      p.complete = !p.complete;
+      saveState();
+      renderSidebar();
+      renderProgressBar();
+      route();
+    });
+  });
+  // Settings buttons
+  const exp = $("#btn-export");
+  if (exp) exp.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "vines-of-life-journal.json";
+    a.click();
+  });
+  const printBtn = $("#btn-print");
+  if (printBtn) printBtn.addEventListener("click", () => {
+    location.hash = "#/journal";
+    setTimeout(() => window.print(), 250);
+  });
+  const imp = $("#file-import");
+  if (imp) imp.addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      state = Object.assign(clone(DEFAULT_STATE), obj);
+      saveState();
+      renderSidebar(); renderMode(); route();
+      alert("Your journal has been restored.");
+    } catch (err) { alert("Could not read that file: " + err.message); }
+  });
+  const reset = $("#btn-reset");
+  if (reset) reset.addEventListener("click", () => {
+    if (confirm("This will erase everything you've written. Are you sure?")) {
+      localStorage.removeItem(STATE_KEY);
+      state = loadState();
+      renderSidebar(); renderMode(); route();
+    }
+  });
+}
+
+function renderFeelingsPicker() {
+  const grid = $("#feelings-grid");
+  if (!grid) return;
+  const p = progressFor("m2");
+  const picked = new Set(p.feelings || []);
+  grid.innerHTML = FEELINGS.map(f => `
+    <button type="button" data-feel="${escapeHtml(f)}" aria-pressed="${picked.has(f)}">${escapeHtml(f)}</button>
+  `).join("");
+  const summary = $("#picked-feelings");
+  const updateSummary = () => {
+    const cur = Array.from(picked);
+    summary.textContent = cur.length
+      ? `Right now I feel: ${cur.join(", ")}.`
+      : "";
+  };
+  updateSummary();
+  $$("#feelings-grid button").forEach(b => {
+    b.addEventListener("click", () => {
+      const f = b.getAttribute("data-feel");
+      if (picked.has(f)) picked.delete(f); else picked.add(f);
+      b.setAttribute("aria-pressed", picked.has(f));
+      p.feelings = Array.from(picked);
+      saveState();
+      updateSummary();
+    });
+  });
+}
+
+/* ------------- Boot ------------- */
+function setMode(mode) {
+  state.mode = mode; saveState(); renderMode(); route();
+}
+$("#btn-mode-individual").addEventListener("click", () => setMode("individual"));
+$("#btn-mode-group").addEventListener("click",      () => setMode("group"));
+
+window.addEventListener("hashchange", route);
+window.addEventListener("load", () => {
+  renderSidebar();
+  renderMode();
+  route();
+});
+
+// If already loaded (cached), boot now
+if (document.readyState !== "loading") {
+  renderSidebar();
+  renderMode();
+  route();
+}
+</script>
+</body>
+</html>

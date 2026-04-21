@@ -1,0 +1,21 @@
+# Local / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Source material (kept outside the repo)
+drive-download-*/
+drive-download-*.zip
+*.HEIC
+*.heic
+pages_jpg/
+ocr_text/
+samples/
+
+# Scratch
+*.bak
+*.tmp
+/tmp/
