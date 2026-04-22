@@ -214,9 +214,37 @@
     background: var(--vine-100); border-color: var(--vine-500); color: var(--vine-900); font-weight: 600;
   }
   .days .day .num { display: block; font-family: var(--serif); font-size: 1.15rem; color: var(--vine-900); }
-  .day-note { margin-top: .4rem; }
-  .day-note summary { cursor: pointer; color: var(--vine-700); font-size: .9rem; margin-bottom: .3rem; }
+  .day-note { margin-top: .6rem; padding: .6rem .8rem; background: #faf6ec; border-radius: 8px; border: 1px solid rgba(31,58,36,.07); }
+  .day-note[open] { background: #fffdf6; border-color: var(--vine-300); }
+  .day-note summary { cursor: pointer; color: var(--vine-700); font-size: .95rem; margin-bottom: .3rem; font-weight: 600; }
   .day-note textarea { min-height: 70px; }
+
+  /* In-context day check (inside each day's reflection) */
+  .day-check {
+    display: flex; align-items: center; gap: .6rem;
+    margin-top: .6rem; padding: .5rem .7rem;
+    background: var(--vine-100); border: 1px solid var(--vine-300);
+    border-radius: 8px; cursor: pointer;
+    font-size: .92rem; color: var(--vine-900);
+    user-select: none;
+  }
+  .day-check:hover { background: #d9e8d3; }
+  .day-check input[type="checkbox"] {
+    width: 20px; height: 20px; flex: 0 0 20px;
+    accent-color: var(--vine-700);
+  }
+  .day-check input:checked + span { font-weight: 600; color: var(--vine-700); }
+
+  /* Celebration panel when all 7 days are walked */
+  .celebration {
+    margin-top: 1rem; padding: 1.4rem 1.4rem;
+    background: linear-gradient(135deg, var(--vine-100), #fbf2e2);
+    border: 1px solid var(--vine-500);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .celebration h3 { color: var(--vine-900); margin-bottom: .3rem; }
+  .celebration p  { color: var(--ink-soft); margin-bottom: 1rem; max-width: 36rem; margin-left: auto; margin-right: auto; }
 
   /* Feelings picker */
   .feelings-grid {
@@ -1501,27 +1529,56 @@ function renderFullModule(m) {
         </div>
       ` : ""}
 
-      ${!m.noPractice && m.livePractice ? `
+      ${!m.noPractice && m.livePractice ? (() => {
+        const allDone = p.days.every(d => d);
+        const daysDone = p.days.filter(d => d).length;
+        return `
         <div class="card">
-          <span class="eyebrow">Live it</span>
+          <span class="eyebrow">Live it · ${daysDone}/7 days</span>
           <h3>${escapeHtml(m.livePractice.title)}</h3>
-          <p style="color:var(--ink-soft);font-size:.92rem">Tap each day as you complete it. You can add notes.</p>
-          <div class="days">
+          <div class="callout">
+            <h4>How to walk these seven days</h4>
+            <p><strong>One per day, in any order.</strong> The aim is not to finish a checklist — it's
+               to sit with each piece of wisdom, let it seep in, and walk with it through the day.
+               If Day 3 is calling to you today, start there.</p>
+            <p>Write your reflection under each day, then mark it complete when you've really lived it.
+               When all seven days are walked, the next module will open.</p>
+          </div>
+          <div class="days" aria-label="Progress across the seven days">
             ${m.livePractice.daily.map((_,i) => `
-              <div class="day ${p.days[i] ? "checked" : ""}" data-day="${m.id}:${i}" role="checkbox" aria-checked="${p.days[i]}" tabindex="0">
-                <span class="num">${i+1}</span>${p.days[i] ? "Done" : "Open"}
+              <div class="day ${p.days[i] ? "checked" : ""}" data-day-jump="${m.id}:${i}" role="button" tabindex="0"
+                   aria-label="Jump to Day ${i+1}${p.days[i] ? " (complete)" : ""}">
+                <span class="num">${i+1}</span>${p.days[i] ? "Walked" : "—"}
               </div>
             `).join("")}
           </div>
           ${m.livePractice.daily.map((text,i) => `
-            <details class="day-note" ${p.days[i] ? "open" : ""}>
-              <summary>Day ${i+1}</summary>
+            <details class="day-note" id="day-${m.id}-${i}" ${p.days[i] ? "open" : ""}>
+              <summary>Day ${i+1}${p.days[i] ? " · walked" : ""}</summary>
               <p style="font-size:.95rem;margin:.2rem 0 .5rem">${text}</p>
-              <textarea data-note="${m.id}:${i}" placeholder="What happened today?">${escapeHtml(p.notes["d"+(i+1)] || "")}</textarea>
+              <label class="field">
+                <span class="label">Your reflection</span>
+                <textarea data-note="${m.id}:${i}" placeholder="Sit with it. Write what rose up in you today.">${escapeHtml(p.notes["d"+(i+1)] || "")}</textarea>
+              </label>
+              <label class="day-check">
+                <input type="checkbox" data-day-check="${m.id}:${i}" ${p.days[i] ? "checked" : ""}>
+                <span>I sat with this — mark Day ${i+1} walked</span>
+              </label>
             </details>
           `).join("")}
+          ${allDone ? `
+            <div class="celebration">
+              <h3>You walked the seven days.</h3>
+              <p>You sat with Module ${m.num}. Something in you has moved.
+                 Take a breath. When you're ready, the next module is open.</p>
+              ${m.num < 10
+                ? `<a class="btn" href="#/module/${m.num+1}">Continue to Module ${m.num+1} →</a>`
+                : `<a class="btn" href="#/sending">Continue to Commissioning →</a>`}
+            </div>
+          ` : ""}
         </div>
-      ` : ""}
+        `;
+      })() : ""}
 
       ${!m.noPractice && m.partnership ? `
         <div class="card">
@@ -1800,18 +1857,39 @@ function attachHandlers() {
       saveState();
     });
   });
-  // Day checkboxes
-  $$(".days .day").forEach(d => {
-    const toggle = () => {
-      const [mid, idx] = d.getAttribute("data-day").split(":");
-      const p = progressFor(mid);
-      p.days[parseInt(idx,10)] = !p.days[parseInt(idx,10)];
-      saveState();
-      route(); // re-render
+  // Progress tiles: jump to that day's <details> section (expand + scroll)
+  $$(".days .day[data-day-jump]").forEach(d => {
+    const jump = () => {
+      const [mid, idx] = d.getAttribute("data-day-jump").split(":");
+      const details = document.getElementById(`day-${mid}-${idx}`);
+      if (details) {
+        details.open = true;
+        details.scrollIntoView({ behavior: "smooth", block: "center" });
+        const ta = details.querySelector("textarea[data-note]");
+        if (ta) setTimeout(() => ta.focus({ preventScroll: true }), 350);
+      }
     };
-    d.addEventListener("click", toggle);
+    d.addEventListener("click", jump);
     d.addEventListener("keydown", e => {
-      if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle(); }
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); jump(); }
+    });
+  });
+  // In-context per-day checkbox (below the reflection)
+  $$("input[data-day-check]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const [mid, idx] = cb.getAttribute("data-day-check").split(":");
+      const p = progressFor(mid);
+      p.days[parseInt(idx,10)] = cb.checked;
+      // If all seven are walked, auto-complete the module
+      const wasComplete = !!p.complete;
+      if (p.days.every(d => d)) p.complete = true;
+      saveState();
+      // If we just crossed from "not complete" to "complete", nav sidebar needs update
+      if (!wasComplete && p.complete) {
+        renderSidebar();
+        renderProgressBar();
+      }
+      route();
     });
   });
   // Partnership notes
