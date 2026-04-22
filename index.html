@@ -219,21 +219,41 @@
   .day-note summary { cursor: pointer; color: var(--vine-700); font-size: .95rem; margin-bottom: .3rem; font-weight: 600; }
   .day-note textarea { min-height: 70px; }
 
-  /* In-context day check (inside each day's reflection) */
-  .day-check {
-    display: flex; align-items: center; gap: .6rem;
-    margin-top: .6rem; padding: .5rem .7rem;
-    background: var(--vine-100); border: 1px solid var(--vine-300);
-    border-radius: 8px; cursor: pointer;
-    font-size: .92rem; color: var(--vine-900);
-    user-select: none;
+  /* In-context per-day toggle (inside each day's reflection) */
+  .day-toggle {
+    display: flex; align-items: center; gap: .75rem;
+    margin-top: .7rem; padding: .5rem .8rem;
+    background: #faf6ec; border: 1px solid rgba(31,58,36,.12);
+    border-radius: 999px; cursor: pointer; user-select: none;
+    transition: background .15s, border-color .15s;
   }
-  .day-check:hover { background: #d9e8d3; }
-  .day-check input[type="checkbox"] {
-    width: 20px; height: 20px; flex: 0 0 20px;
-    accent-color: var(--vine-700);
+  .day-toggle:hover { background: #f3ecd8; }
+  .day-toggle input[type="checkbox"] {
+    /* Keep accessible but hide visually; the .track/.thumb is the UI */
+    position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;
   }
-  .day-check input:checked + span { font-weight: 600; color: var(--vine-700); }
+  .day-toggle .track {
+    width: 44px; height: 24px; flex: 0 0 44px;
+    background: #d8d3c2; border-radius: 999px;
+    position: relative; transition: background .18s ease;
+  }
+  .day-toggle .track .thumb {
+    position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    transition: left .18s ease;
+  }
+  .day-toggle .text {
+    font-size: .92rem; color: var(--ink-soft);
+    transition: color .15s;
+  }
+  .day-toggle input:checked ~ .track { background: var(--vine-500); }
+  .day-toggle input:checked ~ .track .thumb { left: 22px; }
+  .day-toggle input:checked ~ .text { color: var(--vine-700); font-weight: 600; }
+  /* Keyboard focus ring on the track when the hidden input is focused */
+  .day-toggle input:focus-visible ~ .track {
+    outline: 2px solid var(--vine-700); outline-offset: 2px;
+  }
 
   /* Celebration panel when all 7 days are walked */
   .celebration {
@@ -1560,9 +1580,10 @@ function renderFullModule(m) {
                 <span class="label">Your reflection</span>
                 <textarea data-note="${m.id}:${i}" placeholder="Sit with it. Write what rose up in you today.">${escapeHtml(p.notes["d"+(i+1)] || "")}</textarea>
               </label>
-              <label class="day-check">
+              <label class="day-toggle">
                 <input type="checkbox" data-day-check="${m.id}:${i}" ${p.days[i] ? "checked" : ""}>
-                <span>I sat with this — mark Day ${i+1} walked</span>
+                <span class="track" aria-hidden="true"><span class="thumb"></span></span>
+                <span class="text">${p.days[i] ? `Day ${i+1} walked` : `I sat with this — mark Day ${i+1} walked`}</span>
               </label>
             </details>
           `).join("")}
@@ -1874,18 +1895,18 @@ function attachHandlers() {
       if (e.key === " " || e.key === "Enter") { e.preventDefault(); jump(); }
     });
   });
-  // In-context per-day checkbox (below the reflection)
+  // In-context per-day toggle (below the reflection).
+  // Module completion mirrors the 7-day state in both directions —
+  // toggling any day off auto-uncompletes the module and removes the celebration.
   $$("input[data-day-check]").forEach(cb => {
     cb.addEventListener("change", () => {
       const [mid, idx] = cb.getAttribute("data-day-check").split(":");
       const p = progressFor(mid);
       p.days[parseInt(idx,10)] = cb.checked;
-      // If all seven are walked, auto-complete the module
       const wasComplete = !!p.complete;
-      if (p.days.every(d => d)) p.complete = true;
+      p.complete = p.days.every(d => d);
       saveState();
-      // If we just crossed from "not complete" to "complete", nav sidebar needs update
-      if (!wasComplete && p.complete) {
+      if (wasComplete !== p.complete) {
         renderSidebar();
         renderProgressBar();
       }
